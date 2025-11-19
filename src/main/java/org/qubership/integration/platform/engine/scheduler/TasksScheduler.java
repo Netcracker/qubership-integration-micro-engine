@@ -23,13 +23,11 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.qubership.integration.platform.engine.consul.DeploymentReadinessService;
 import org.qubership.integration.platform.engine.consul.KVNotFoundException;
 import org.qubership.integration.platform.engine.consul.updates.UpdateGetterHelper;
 import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.kafka.systemmodel.CompiledLibraryUpdate;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
-import org.qubership.integration.platform.engine.service.IntegrationRuntimeService;
 import org.qubership.integration.platform.engine.service.VariablesService;
 import org.qubership.integration.platform.engine.service.contextstorage.ContextStorageService;
 import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
@@ -47,17 +45,7 @@ public class TasksScheduler {
     VariablesService variableService;
 
     @Inject
-    IntegrationRuntimeService runtimeService;
-
-    @Inject
     CheckpointSessionService checkpointSessionService;
-
-    @Inject
-    DeploymentReadinessService deploymentReadinessService;
-
-    @Inject
-    @Named("deploymentUpdateGetter")
-    UpdateGetterHelper<Long> deploymentUpdateGetter;
 
     @Inject
     @Named("librariesUpdateGetter")
@@ -109,17 +97,6 @@ public class TasksScheduler {
     )
     public void refreshSecuredVariables() {
         variableService.refreshSecuredVariables();
-    }
-
-    @Scheduled(
-            every = "${qip.deployments.retry-delay}",
-            concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
-    )
-    public void retryProcessingDeploys() {
-        if (deploymentReadinessService.isInitialized()) {
-            runtimeService.retryProcessingDeploys();
-        }
     }
 
     @Scheduled(

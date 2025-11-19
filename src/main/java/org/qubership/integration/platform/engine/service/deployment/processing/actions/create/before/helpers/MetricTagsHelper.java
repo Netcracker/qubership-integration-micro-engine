@@ -17,6 +17,7 @@
 package org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers;
 
 import io.micrometer.core.instrument.Tag;
+import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import static org.qubership.integration.platform.engine.service.debugger.metrics.MetricsStore.*;
 
 @ApplicationScoped
+@Unremovable
 public class MetricTagsHelper {
     private final EngineInfo engineInfo;
 
