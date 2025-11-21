@@ -34,7 +34,6 @@ import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePr
 import org.qubership.integration.platform.engine.service.externallibrary.ExternalLibraryService;
 import org.qubership.integration.platform.engine.util.InjectUtil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,10 +55,6 @@ public class TasksScheduler {
     UpdateGetterHelper<Map<String, ChainRuntimeProperties>> chainRuntimePropertiesUpdateGetter;
 
     @Inject
-    @Named("commonVariablesUpdateGetter")
-    UpdateGetterHelper<Map<String, String>> commonVariablesUpdateGetter;
-
-    @Inject
     Instance<ExternalLibraryService> externalLibraryService;
 
     @Inject
@@ -77,17 +72,7 @@ public class TasksScheduler {
             skipExecutionIf = Scheduled.ApplicationNotRunning.class
     )
     public void refreshCommonVariables() {
-        try {
-            commonVariablesUpdateGetter.checkForUpdates(changes -> {
-                log.debug("Common variables changes detected");
-                variableService.updateCommonVariables(changes);
-            });
-        } catch (KVNotFoundException e) {
-            log.debug("Common variables KV is empty. {}", e.getMessage());
-            variableService.updateCommonVariables(Collections.emptyMap());
-        } catch (Exception e) {
-            log.error("Failed to update common variables. {}", e.getMessage());
-        }
+        variableService.refreshCommonVariables();
     }
 
     @Scheduled(

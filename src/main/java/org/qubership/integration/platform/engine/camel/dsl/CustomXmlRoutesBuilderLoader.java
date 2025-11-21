@@ -2,14 +2,21 @@ package org.qubership.integration.platform.engine.camel.dsl;
 
 import jakarta.enterprise.inject.spi.CDI;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.CamelContext;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.RouteBuilderLifecycleStrategy;
 import org.apache.camel.dsl.xml.io.XmlRoutesBuilderLoader;
 import org.apache.camel.spi.Resource;
 import org.apache.camel.spi.annotations.RoutesLoader;
+import org.qubership.integration.platform.engine.camel.dsl.errorhandling.ErrorHandler;
+import org.qubership.integration.platform.engine.camel.dsl.errorhandling.ErrorHandlerFactory;
+//import org.qubership.integration.platform.engine.camel.dsl.errorhandling.RouteBuilderWrapper;
 import org.qubership.integration.platform.engine.camel.dsl.preprocess.ResourceContentPreprocessingService;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -25,6 +32,7 @@ import static java.util.Objects.isNull;
 @RoutesLoader(XmlRoutesBuilderLoader.EXTENSION)
 public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
     private ResourceContentPreprocessingService preprocessingService;
+    private ErrorHandlerFactory errorHandlerFactory;
 
     @Override
     public void preParseRoute(Resource resource) throws Exception {
@@ -34,7 +42,7 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
     @Override
     public RouteBuilder doLoadRouteBuilder(Resource input) throws Exception {
         Resource preprocessedInput = preprocessInput(input);
-        return super.doLoadRouteBuilder(preprocessedInput);
+        return wrapRouteBuilder(input, super.doLoadRouteBuilder(preprocessedInput));
     }
 
     private Resource preprocessInput(Resource input) throws Exception {
@@ -54,5 +62,59 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
                     .select(ResourceContentPreprocessingService.class).get();
         }
         return preprocessingService;
+    }
+
+    private RouteBuilder wrapRouteBuilder(Resource resource, RouteBuilder builder) {
+        ErrorHandler errorHandler = getErrorHandler(resource);
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                builder.configure();
+            }
+
+            @Override
+            public void addRoutesToCamelContext(CamelContext context) throws Exception {
+                try {
+                    builder.addRoutesToCamelContext(context);
+                } catch (Exception e) {
+                    errorHandler.handleError(context, e);
+                }
+            }
+
+            @Override
+            public void addTemplatedRoutesToCamelContext(CamelContext context) throws Exception {
+                try {
+                    builder.addTemplatedRoutesToCamelContext(context);
+                } catch (Exception e) {
+                    errorHandler.handleError(context, e);
+                }
+            }
+
+            @Override
+            public Set<String> updateRoutesToCamelContext(CamelContext context) throws Exception {
+                try {
+                    return builder.updateRoutesToCamelContext(context);
+                } catch (Exception e) {
+                    errorHandler.handleError(context, e);
+                    return Collections.emptySet();
+                }
+            }
+
+            @Override
+            public void addLifecycleInterceptor(RouteBuilderLifecycleStrategy interceptor) {
+                builder.addLifecycleInterceptor(interceptor);
+            }
+        }; // new RouteBuilderWrapper(builder, errorHandler);
+    }
+
+    private ErrorHandler getErrorHandler(Resource resource) {
+        return getErrorHandlerFactory().getErrorHandler(resource);
+    }
+
+    private synchronized ErrorHandlerFactory getErrorHandlerFactory() {
+        if (isNull(errorHandlerFactory)) {
+            errorHandlerFactory = CDI.current().select(ErrorHandlerFactory.class).get();
+        }
+        return errorHandlerFactory;
     }
 }

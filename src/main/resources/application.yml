@@ -56,6 +56,10 @@ camel:
 
 qip:
   camel:
+    startup:
+      error-handling:
+        ignore-variables-errors: false
+        ignore-route-loading-errors: false
     routes-prefix: /routes
     stream-caching:
       enabled: true # enable exchange payload spooling
