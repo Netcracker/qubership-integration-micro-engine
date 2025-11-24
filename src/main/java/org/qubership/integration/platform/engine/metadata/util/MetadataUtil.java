@@ -1,10 +1,13 @@
 package org.qubership.integration.platform.engine.metadata.util;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Route;
 import org.qubership.integration.platform.engine.metadata.*;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.qubership.integration.platform.engine.model.ChainElementType.CHECKPOINT;
 
@@ -19,6 +22,11 @@ public class MetadataUtil {
     private static <T> T getBeanForChain(Exchange exchange, Class<T> cls) {
         String chainId = getChainId(exchange);
         return exchange.getContext().getRegistry().lookupByNameAndType(getBeanName(cls, chainId), cls);
+    }
+
+    private static <T> T getBeanForChain(Route route, Class<T> cls) {
+        String chainId = getChainId(route);
+        return route.getCamelContext().getRegistry().lookupByNameAndType(getBeanName(cls, chainId), cls);
     }
 
     private static <T> T getBeanForElement(Exchange exchange, String elementId, Class<T> cls) {
@@ -41,6 +49,10 @@ public class MetadataUtil {
 
     public static ChainInfo getChainInfo(Exchange exchange) {
         return getBeanForChain(exchange, ChainInfo.class);
+    }
+
+    public static ChainInfo getChainInfo(Route route) {
+        return getBeanForChain(route, ChainInfo.class);
     }
 
     public static boolean chainHasCheckpointElements(Exchange exchange) {
@@ -66,5 +78,12 @@ public class MetadataUtil {
 
     public static Optional<ServiceCallInfo> getServiceCallInfo(Exchange exchange, String elementId) {
         return getOptionalBeanForElement(exchange, elementId, ServiceCallInfo.class);
+    }
+
+    public static Collection<RouteRegistrationInfo> getRouteRegistrationInfo(CamelContext context, String chainId) {
+        return context.getRegistry()
+                .findByType(RouteRegistrationInfo.class).stream()
+                .filter(routeRegistrationInfo -> chainId.equals(routeRegistrationInfo.getChainId()))
+                .collect(Collectors.toList());
     }
 }

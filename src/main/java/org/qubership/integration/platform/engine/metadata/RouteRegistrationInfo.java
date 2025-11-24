@@ -11,8 +11,10 @@ import javax.annotation.Nullable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class RouteRegistrationInfo {
+    private String chainId;
+
     private String path;
     @Nullable
     private String gatewayPrefix; // for senders and services

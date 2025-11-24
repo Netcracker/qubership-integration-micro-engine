@@ -4,10 +4,15 @@ import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
 import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
 
 public class RouteRegistrationInfoBuilder {
-    private RouteRegistrationInfo.RouteRegistrationInfoBuilder delegate;
+    private final RouteRegistrationInfo.RouteRegistrationInfoBuilder delegate;
 
     public RouteRegistrationInfoBuilder() {
         delegate = RouteRegistrationInfo.builder();
+    }
+
+    public RouteRegistrationInfoBuilder chainId(String chainId) {
+        delegate.chainId(chainId);
+        return this;
     }
 
     public RouteRegistrationInfoBuilder path(String path) {
