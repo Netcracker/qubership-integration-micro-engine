@@ -124,30 +124,6 @@ public class QuartzSchedulerService {
         }
     }
 
-    /**
-     * Suspend all schedulers on separate instance
-     */
-    public synchronized void suspendAllSchedulers() {
-        try {
-            log.info("Suspend camel quartz scheduler");
-            ((StdSchedulerProxy) getFactory()).suspendScheduler();
-        } catch (Exception e) {
-            log.error("Failed to suspend scheduler", e);
-        }
-    }
-
-    /**
-     * Resume all schedulers on separate instance
-     */
-    public void resumeAllSchedulers() {
-        try {
-            log.info("Resume camel quartz scheduler");
-            ((StdSchedulerProxy) getFactory()).resumeScheduler();
-        } catch (SchedulerException e) {
-            log.error("Failed to resume scheduler", e);
-        }
-    }
-
     public SchedulerFactory getFactory() {
         return schedulerFactoryProxy;
     }
