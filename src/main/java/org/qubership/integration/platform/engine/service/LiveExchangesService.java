@@ -63,12 +63,11 @@ public class LiveExchangesService {
             Long exchangeStartTime = exchange.getProperty(CamelConstants.Properties.EXCHANGE_START_TIME_MS, Long.class);
             Long exchangeDuration = exchangeStartTime == null ? null : System.currentTimeMillis() - exchangeStartTime;
             ChainRuntimeProperties properties = propertiesService.getRuntimeProperties(exchange);
-            String chainId = MetadataUtil.getChainId(exchange);
             result.add(LiveExchangeDTO.builder()
                         .exchangeId(exchange.getExchangeId())
                         .deploymentId(chainInfo.getVersion())
                         .sessionId(exchange.getProperty(CamelConstants.Properties.SESSION_ID, String.class))
-                        .chainId(chainId)
+                        .chainId(chainInfo.getId())
                         .sessionStartTime(sessionStartTime)
                         .sessionDuration(sessionDuration)
                         .sessionLogLevel(properties.calculateSessionLevel(exchange))
