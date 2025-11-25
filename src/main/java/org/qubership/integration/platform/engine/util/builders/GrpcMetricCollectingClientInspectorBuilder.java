@@ -6,8 +6,8 @@ import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.binder.grpc.MetricCollectingClientInterceptor;
 import jakarta.enterprise.inject.spi.CDI;
+import org.qubership.integration.platform.engine.service.MetricTagsHelper;
 import org.qubership.integration.platform.engine.service.debugger.metrics.MetricsStore;
-import org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers.MetricTagsHelper;
 
 import java.util.Collection;
 import java.util.function.UnaryOperator;

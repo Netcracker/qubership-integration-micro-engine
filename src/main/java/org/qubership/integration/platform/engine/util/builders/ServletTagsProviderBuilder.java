@@ -3,7 +3,7 @@ package org.qubership.integration.platform.engine.util.builders;
 import io.micrometer.core.instrument.Tag;
 import jakarta.enterprise.inject.spi.CDI;
 import org.qubership.integration.platform.engine.camel.components.servlet.ServletTagsProvider;
-import org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers.MetricTagsHelper;
+import org.qubership.integration.platform.engine.service.MetricTagsHelper;
 
 import java.util.Collection;
 

@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.service.externallibrary;
+package org.qubership.integration.platform.engine.service.groovy;
 
 import groovy.lang.Script;
-import io.quarkus.vertx.ConsumeEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.language.groovy.GroovyLanguage;
-import org.qubership.integration.platform.engine.events.ExternalLibrariesUpdatedEvent;
-import org.qubership.integration.platform.engine.events.UpdateEvent;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -69,12 +66,5 @@ public class GroovyLanguageWithResettableCache extends GroovyLanguage {
         Method method = this.getClass().getSuperclass().getDeclaredMethod("addScriptToCache", String.class, Class.class);
         method.setAccessible(true);
         method.invoke(this, key, scriptClass);
-    }
-
-    @ConsumeEvent(UpdateEvent.EVENT_ADDRESS)
-    public void onExternalLibrariesUpdated(UpdateEvent event) {
-        if (!event.isInitialUpdate() && event instanceof ExternalLibrariesUpdatedEvent) {
-            resetScriptCache();
-        }
     }
 }

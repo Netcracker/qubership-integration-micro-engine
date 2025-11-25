@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers;
+package org.qubership.integration.platform.engine.service;
 
 import io.micrometer.core.instrument.Tag;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties;
 import org.qubership.integration.platform.engine.model.deployment.engine.EngineInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.DeploymentInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.ElementProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,19 +36,6 @@ public class MetricTagsHelper {
     @Inject
     public MetricTagsHelper(EngineInfo engineInfo) {
         this.engineInfo = engineInfo;
-    }
-
-    public Collection<Tag> buildMetricTags(
-        DeploymentInfo deploymentInfo,
-        ElementProperties elementProperties,
-        String chainName
-    ) {
-        return buildMetricTags(
-                deploymentInfo.getChainId(),
-                chainName,
-                elementProperties.getProperties().get(ChainProperties.ELEMENT_ID),
-                elementProperties.getProperties().get(ChainProperties.ELEMENT_NAME)
-        );
     }
 
     public Collection<Tag> buildMetricTags(

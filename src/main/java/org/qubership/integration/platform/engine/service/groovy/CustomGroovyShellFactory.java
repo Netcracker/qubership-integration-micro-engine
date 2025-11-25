@@ -14,39 +14,26 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.service.externallibrary;
+package org.qubership.integration.platform.engine.service.groovy;
 
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyShell;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.language.groovy.GroovyShellFactory;
-import org.qubership.integration.platform.engine.util.InjectUtil;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
 @Slf4j
 @ApplicationScoped
-public class ExternalLibraryGroovyShellFactory implements GroovyShellFactory {
-    private final Optional<ExternalLibraryService> externalLibraryService;
-
-    @Inject
-    public ExternalLibraryGroovyShellFactory(Instance<ExternalLibraryService> externalLibraryService) {
-        this.externalLibraryService = InjectUtil.injectOptional(externalLibraryService);
-    }
-
+public class CustomGroovyShellFactory implements GroovyShellFactory {
     @Override
     public GroovyShell createGroovyShell(Exchange exchange) {
         log.debug("Requesting groovy shell for {}", isNull(exchange) ? Collections.emptyMap() : exchange.getProperties());
-        GroovyClassLoader groovyClassLoader = new GroovyClassLoader(externalLibraryService.isPresent()
-                ? externalLibraryService.get().getShellClassLoader()
-                : getClass().getClassLoader());
+        GroovyClassLoader groovyClassLoader = new GroovyClassLoader(getClass().getClassLoader());
         return new GroovyShell(groovyClassLoader);
     }
 }

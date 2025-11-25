@@ -6,8 +6,8 @@ import org.apache.camel.component.kafka.DefaultKafkaClientFactory;
 import org.apache.camel.component.kafka.KafkaClientFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.camel.components.kafka.TaggedMetricsKafkaClientFactory;
+import org.qubership.integration.platform.engine.service.MetricTagsHelper;
 import org.qubership.integration.platform.engine.service.debugger.metrics.MetricsStore;
-import org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers.MetricTagsHelper;
 
 import java.util.Collection;
 

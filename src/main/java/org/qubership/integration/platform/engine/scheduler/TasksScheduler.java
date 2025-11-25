@@ -18,7 +18,6 @@ package org.qubership.integration.platform.engine.scheduler;
 
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +30,6 @@ import org.qubership.integration.platform.engine.service.CheckpointSessionServic
 import org.qubership.integration.platform.engine.service.VariablesService;
 import org.qubership.integration.platform.engine.service.contextstorage.ContextStorageService;
 import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
-import org.qubership.integration.platform.engine.service.externallibrary.ExternalLibraryService;
-import org.qubership.integration.platform.engine.util.InjectUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -53,9 +50,6 @@ public class TasksScheduler {
     @Inject
     @Named("chainRuntimePropertiesUpdateGetter")
     UpdateGetterHelper<Map<String, ChainRuntimeProperties>> chainRuntimePropertiesUpdateGetter;
-
-    @Inject
-    Instance<ExternalLibraryService> externalLibraryService;
 
     @Inject
     ChainRuntimePropertiesService chainRuntimePropertiesService;
@@ -102,23 +96,6 @@ public class TasksScheduler {
     public void cleanupContextStorage() {
         contextStorageService.deleteOldRecords();
         log.info("Scheduled context record cleanup completed");
-    }
-
-    @Scheduled(
-            every = "PT2.5S",
-            concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
-    )
-    public void checkLibrariesUpdates() {
-        InjectUtil.injectOptional(externalLibraryService).ifPresent(libraryService -> {
-            try {
-                librariesUpdateGetter.checkForUpdates(libraryService::updateSystemModelLibraries);
-            } catch (KVNotFoundException e) {
-                log.warn("Libraries update KV is empty. {}", e.getMessage());
-            } catch (Exception e) {
-                log.error("Failed to get libraries update from consul/systems-catalog", e);
-            }
-        });
     }
 
     @Scheduled(

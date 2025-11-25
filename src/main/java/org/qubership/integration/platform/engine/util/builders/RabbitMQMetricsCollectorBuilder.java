@@ -6,8 +6,8 @@ import io.micrometer.core.instrument.Tag;
 import jakarta.enterprise.inject.spi.CDI;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.camel.components.rabbitmq.NoOpMetricsCollector;
+import org.qubership.integration.platform.engine.service.MetricTagsHelper;
 import org.qubership.integration.platform.engine.service.debugger.metrics.MetricsStore;
-import org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers.MetricTagsHelper;
 
 import java.util.Collection;
 

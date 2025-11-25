@@ -15,8 +15,8 @@ import org.codehaus.groovy.control.CompilationFailedException;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
 import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteAdded;
 import org.qubership.integration.platform.engine.errorhandling.DeploymentRetriableException;
-import org.qubership.integration.platform.engine.service.externallibrary.ExternalLibraryGroovyShellFactory;
-import org.qubership.integration.platform.engine.service.externallibrary.GroovyLanguageWithResettableCache;
+import org.qubership.integration.platform.engine.service.groovy.CustomGroovyShellFactory;
+import org.qubership.integration.platform.engine.service.groovy.GroovyLanguageWithResettableCache;
 
 import static java.util.Objects.isNull;
 
@@ -25,7 +25,7 @@ import static java.util.Objects.isNull;
 @ApplicationScoped
 public class CompileGroovyScriptsAction implements EventProcessingAction<CamelEvent.RouteAddedEvent> {
     @Inject
-    ExternalLibraryGroovyShellFactory groovyShellFactory;
+    CustomGroovyShellFactory groovyShellFactory;
 
     @Inject
     GroovyLanguageWithResettableCache groovyLanguage;
