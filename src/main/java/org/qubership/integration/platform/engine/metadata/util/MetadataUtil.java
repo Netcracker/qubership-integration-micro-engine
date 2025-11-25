@@ -8,6 +8,7 @@ import org.qubership.integration.platform.engine.metadata.*;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.qubership.integration.platform.engine.model.ChainElementType.CHECKPOINT;
 
@@ -55,13 +56,23 @@ public class MetadataUtil {
         return getBeanForChain(route, ChainInfo.class);
     }
 
-    public static boolean chainHasCheckpointElements(Exchange exchange) {
+    public static Stream<ElementInfo> getChainElementsInfo(Exchange exchange) {
         ChainInfo chainInfo = getChainInfo(exchange);
         return exchange.getContext().getRegistry().findByType(ElementInfo.class)
                 .stream()
-                .anyMatch(elementInfo ->
-                        chainInfo.getId().equals(elementInfo.getChainId())
-                                && CHECKPOINT.getText().equals(elementInfo.getType()));
+                .filter(elementInfo -> chainInfo.getId().equals(elementInfo.getChainId()));
+    }
+
+    public static Stream<ElementInfo> getChainElementsInfo(Route route) {
+        ChainInfo chainInfo = getChainInfo(route);
+        return route.getCamelContext().getRegistry().findByType(ElementInfo.class)
+                .stream()
+                .filter(elementInfo -> chainInfo.getId().equals(elementInfo.getChainId()));
+    }
+
+    public static boolean chainHasCheckpointElements(Exchange exchange) {
+        return getChainElementsInfo(exchange)
+                .anyMatch(elementInfo -> CHECKPOINT.getText().equals(elementInfo.getType()));
     }
 
     public static MaskedFields getMaskedFields(Exchange exchange) {

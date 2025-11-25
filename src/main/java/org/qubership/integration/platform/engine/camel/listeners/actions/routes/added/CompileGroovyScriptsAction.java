@@ -1,8 +1,7 @@
-package org.qubership.integration.platform.engine.camel.groovy;
+package org.qubership.integration.platform.engine.camel.listeners.actions.routes.added;
 
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
-import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -12,18 +11,19 @@ import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.language.ExpressionDefinition;
 import org.apache.camel.spi.CamelEvent;
-import org.apache.camel.support.SimpleEventNotifierSupport;
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
+import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteAdded;
 import org.qubership.integration.platform.engine.errorhandling.DeploymentRetriableException;
 import org.qubership.integration.platform.engine.service.externallibrary.ExternalLibraryGroovyShellFactory;
 import org.qubership.integration.platform.engine.service.externallibrary.GroovyLanguageWithResettableCache;
 
 import static java.util.Objects.isNull;
 
-@ApplicationScoped
-@Unremovable
 @Slf4j
-public class CompileScriptOnRouteAddedNotifier extends SimpleEventNotifierSupport {
+@OnRouteAdded
+@ApplicationScoped
+public class CompileGroovyScriptsAction implements EventProcessingAction<CamelEvent.RouteAddedEvent> {
     @Inject
     ExternalLibraryGroovyShellFactory groovyShellFactory;
 
@@ -31,12 +31,10 @@ public class CompileScriptOnRouteAddedNotifier extends SimpleEventNotifierSuppor
     GroovyLanguageWithResettableCache groovyLanguage;
 
     @Override
-    public void notify(CamelEvent event) throws Exception {
-        if (event instanceof CamelEvent.RouteAddedEvent routeAddedEvent) {
-            NamedNode node = routeAddedEvent.getRoute().getRoute();
-            if (node instanceof RouteDefinition routeDefinition) {
-                compileGroovyScripts(routeDefinition);
-            }
+    public void process(CamelEvent.RouteAddedEvent event) throws Exception {
+        NamedNode node = event.getRoute().getRoute();
+        if (node instanceof RouteDefinition routeDefinition) {
+            compileGroovyScripts(routeDefinition);
         }
     }
 
