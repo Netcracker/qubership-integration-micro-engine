@@ -131,9 +131,9 @@ public class TasksScheduler {
             chainRuntimePropertiesUpdateGetter.checkForUpdates(
                     chainRuntimePropertiesService::updateRuntimeProperties);
         } catch (KVNotFoundException e) {
-            log.debug("Runtime deployments properties KV is empty. {}", e.getMessage());
+            log.debug("Chain runtime properties KV is empty. {}", e.getMessage());
         } catch (Exception e) {
-            log.error("Failed to get runtime deployments properties from consul", e);
+            log.error("Failed to get chain runtime properties from consul", e);
         }
     }
 }
