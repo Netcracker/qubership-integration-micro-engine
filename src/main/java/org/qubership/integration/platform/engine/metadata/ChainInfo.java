@@ -13,4 +13,12 @@ public class ChainInfo {
     private String id;
     private String name;
     private String version;
+
+    public String getDeploymentId() {
+        return id + "-" + version;
+    }
+
+    public String getSnapshotId() {
+        return version;
+    }
 }

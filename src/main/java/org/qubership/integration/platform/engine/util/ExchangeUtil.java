@@ -38,6 +38,20 @@ public class ExchangeUtil {
                 .put(session.getId(), new ConcurrentHashMap<String, Exchange>());
     }
 
+    public static Long getSessionStartTime(Exchange exchange) {
+        return exchange.getProperty(CamelConstants.Properties.START_TIME_MS, Long.class);
+    }
+
+    public static Long getSessionDuration(Exchange exchange) {
+        Long sessionStartTime = getSessionStartTime(exchange);
+        return sessionStartTime == null ? null : System.currentTimeMillis() - sessionStartTime;
+    }
+
+    public static Long getExchangeDuration(Exchange exchange) {
+        Long exchangeStartTime = exchange.getProperty(CamelConstants.Properties.EXCHANGE_START_TIME_MS, Long.class);
+        return exchangeStartTime == null ? null : System.currentTimeMillis() - exchangeStartTime;
+    }
+
     public static void initInternalProperties(Exchange exchange) {
         exchange.setProperty(CamelConstants.Properties.STEPS,
                 exchange.getProperty(CamelConstants.Properties.STEPS) == null

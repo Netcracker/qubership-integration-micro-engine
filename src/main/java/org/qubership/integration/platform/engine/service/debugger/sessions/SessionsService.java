@@ -95,7 +95,7 @@ public class SessionsService {
             .started(startTime.toString())
             .executionStatus(ExecutionStatus.IN_PROGRESS)
             .loggingLevel(sessionLevel.toString())
-            .snapshotName(chainInfo.getVersion())
+            .snapshotName(chainInfo.getSnapshotId())
             .parentSessionId(parentSessionId)
             .build();
 
