@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.util.paths;
+package org.qubership.integration.platform.engine.logging;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor
-public class PathElement {
-    private String pattern;
+public class ContextHeaders {
+    public static final String REQUEST_ID_HEADER = "X-Request-ID";
+    public static final String REQUEST_ID = "requestId";
 }

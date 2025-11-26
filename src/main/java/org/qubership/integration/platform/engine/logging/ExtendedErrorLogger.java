@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.util.log;
+package org.qubership.integration.platform.engine.logging;
 
 import jakarta.annotation.Nullable;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;

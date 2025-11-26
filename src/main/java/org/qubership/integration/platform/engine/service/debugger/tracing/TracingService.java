@@ -24,7 +24,7 @@ import org.apache.camel.tracing.ActiveSpanManager;
 import org.apache.camel.tracing.SpanAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.configuration.TracingConfiguration;
-import org.qubership.integration.platform.engine.logging.constants.ContextHeaders;
+import org.qubership.integration.platform.engine.logging.ContextHeaders;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;

@@ -3,6 +3,7 @@ package org.qubership.integration.platform.engine.metadata.util;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Route;
+import org.apache.camel.spi.ClassResolver;
 import org.qubership.integration.platform.engine.metadata.*;
 
 import java.util.Collection;
@@ -96,5 +97,10 @@ public class MetadataUtil {
                 .findByType(RouteRegistrationInfo.class).stream()
                 .filter(routeRegistrationInfo -> chainId.equals(routeRegistrationInfo.getChainId()))
                 .collect(Collectors.toList());
+    }
+
+    // FIXME
+    public static ClassResolver getClassResolver(Exchange exchange) {
+        return getBeanForChain(exchange, ClassResolver.class);
     }
 }

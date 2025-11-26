@@ -29,6 +29,8 @@ import org.apache.camel.support.http.HttpUtil;
 import org.apache.camel.tracing.ActiveSpanManager;
 import org.apache.camel.tracing.SpanAdapter;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLogger;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLoggerFactory;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.ServiceCallInfo;
@@ -50,8 +52,6 @@ import org.qubership.integration.platform.engine.service.debugger.util.PayloadEx
 import org.qubership.integration.platform.engine.util.ExchangeUtil;
 import org.qubership.integration.platform.engine.util.IdentifierUtils;
 import org.qubership.integration.platform.engine.util.InjectUtil;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLogger;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Collections;

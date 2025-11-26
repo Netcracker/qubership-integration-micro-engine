@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.logging.constants;
+package org.qubership.integration.platform.engine.logging;
 
-public class ContextHeaders {
-    public static final String REQUEST_ID_HEADER = "X-Request-ID";
-    public static final String REQUEST_ID = "requestId";
+public class ExtendedErrorLoggerFactory {
+
+    public ExtendedErrorLoggerFactory() {}
+
+    public static ExtendedErrorLogger getLogger(String name) {
+        return new ExtendedErrorLogger(name);
+    }
+
+    public static ExtendedErrorLogger getLogger(Class<?> clazz) {
+        return new ExtendedErrorLogger(clazz);
+    }
 }
