@@ -35,9 +35,7 @@ import org.qubership.integration.platform.engine.rest.v1.mapper.SessionInfoMappe
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Path(RestApiConstants.V1_ROUTE_PREFIX + SessionController.SESSIONS_PATH)
@@ -65,13 +63,10 @@ public class SessionController {
     @Operation(description = "List all sessions with available checkpoints by their ids")
     public RestResponse<List<CheckpointSessionDTO>> findSessions(
             @QueryParam("ids")
-            @DefaultValue("")
             @Parameter(description = "List of the session ids separated by comma")
             List<String> ids
     ) {
-        // TODO [migration to quarkus] check that ids can be null otherwise use ids directly
-        List<String> identifiers = Optional.ofNullable(ids).orElse(Collections.emptyList());
-        Collection<SessionInfo> sessions = checkpointSessionService.findSessions(identifiers);
+        Collection<SessionInfo> sessions = checkpointSessionService.findSessions(ids);
         List<CheckpointSessionDTO> dtos = sessions.stream().map(sessionInfoMapper::asDTO).toList();
         return RestResponse.ok(dtos);
     }
