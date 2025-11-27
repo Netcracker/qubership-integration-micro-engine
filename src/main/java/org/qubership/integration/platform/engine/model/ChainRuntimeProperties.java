@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.model.deployment.properties;
+package org.qubership.integration.platform.engine.model;
 
 import lombok.*;
 import org.apache.camel.Exchange;

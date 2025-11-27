@@ -1,7 +1,7 @@
 package org.qubership.integration.platform.engine.metadata.builders;
 
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
+import org.qubership.integration.platform.engine.metadata.RouteType;
 
 public class RouteRegistrationInfoBuilder {
     private final RouteRegistrationInfo.RouteRegistrationInfoBuilder delegate;

@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.model.ChainElementType;
-import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 
 @Getter
 @Builder(toBuilder = true)

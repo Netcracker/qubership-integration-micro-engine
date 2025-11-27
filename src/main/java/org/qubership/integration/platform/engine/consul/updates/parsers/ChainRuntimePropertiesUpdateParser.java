@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.service.debugger.RuntimePropertiesException;
 
 import java.util.HashMap;

@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.model.deployment.engine;
+package org.qubership.integration.platform.engine.model.engine;
 
 import lombok.*;
-import org.qubership.integration.platform.engine.model.deployment.update.DeploymentInfo;
+
+import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
-public class EngineDeployment {
-    private DeploymentInfo deploymentInfo;
-    private DeploymentStatus status;
-    private String errorMessage;
+@Builder
+public class EngineState {
+    private EngineInfo engine;
+
+    // <deploymentId, deployment>
+    private Map<String, EngineDeployment> deployments;
 }

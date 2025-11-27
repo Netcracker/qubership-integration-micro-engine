@@ -20,7 +20,7 @@ import io.micrometer.core.instrument.Tag;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineInfo;
+import org.qubership.integration.platform.engine.model.engine.EngineInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;

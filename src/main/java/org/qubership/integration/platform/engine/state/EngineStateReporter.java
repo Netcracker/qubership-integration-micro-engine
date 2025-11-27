@@ -19,8 +19,8 @@ package org.qubership.integration.platform.engine.state;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineDeployment;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineState;
+import org.qubership.integration.platform.engine.model.engine.EngineDeployment;
+import org.qubership.integration.platform.engine.model.engine.EngineState;
 import org.qubership.integration.platform.engine.service.debugger.metrics.MetricsService;
 
 import java.util.Map;

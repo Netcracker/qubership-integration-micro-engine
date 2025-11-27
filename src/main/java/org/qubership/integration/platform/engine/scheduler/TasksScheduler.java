@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.qubership.integration.platform.engine.consul.KVNotFoundException;
 import org.qubership.integration.platform.engine.consul.updates.UpdateGetterHelper;
-import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.kafka.systemmodel.CompiledLibraryUpdate;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
 import org.qubership.integration.platform.engine.service.VariablesService;

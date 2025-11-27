@@ -28,7 +28,7 @@ import org.apache.camel.component.resilience4j.ResilienceProcessor;
 import org.apache.camel.component.resilience4j.ResilienceReifier;
 import org.apache.camel.model.CircuitBreakerDefinition;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
-import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.logging.LogLoggingLevel;
 import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
 

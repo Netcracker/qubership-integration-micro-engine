@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.model.deployment.engine;
+package org.qubership.integration.platform.engine.model.engine;
 
 import lombok.*;
 
@@ -22,9 +22,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class EngineInfo {
-    private String host;
-    private String domain;
-    private String engineDeploymentName;
+@Builder(toBuilder = true)
+public class EngineDeployment {
+    private DeploymentInfo deploymentInfo;
+    private DeploymentStatus status;
+    private String errorMessage;
 }

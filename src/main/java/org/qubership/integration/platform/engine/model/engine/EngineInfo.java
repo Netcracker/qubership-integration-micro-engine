@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.model.deployment.engine;
+package org.qubership.integration.platform.engine.model.engine;
 
-public enum DeploymentStatus {
-    DEPLOYED,
-    FAILED,
-    PROCESSING
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EngineInfo {
+    private String host;
+    private String domain;
+    private String engineDeploymentName;
 }

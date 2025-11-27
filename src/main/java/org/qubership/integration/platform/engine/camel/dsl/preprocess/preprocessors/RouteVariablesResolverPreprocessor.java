@@ -6,7 +6,7 @@ import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.qubership.integration.platform.engine.camel.dsl.preprocess.ResourceContentPreprocessor;
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
+import org.qubership.integration.platform.engine.metadata.RouteType;
 import org.qubership.integration.platform.engine.service.RouteRegistrationService;
 
 import java.util.Collection;

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
 
 import javax.annotation.Nullable;
 

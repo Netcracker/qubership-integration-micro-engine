@@ -31,8 +31,8 @@ import org.qubership.integration.platform.engine.model.ChainElementType;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
 import org.qubership.integration.platform.engine.model.constants.CamelNames;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineDeployment;
-import org.qubership.integration.platform.engine.model.deployment.update.DeploymentInfo;
+import org.qubership.integration.platform.engine.model.engine.DeploymentInfo;
+import org.qubership.integration.platform.engine.model.engine.EngineDeployment;
 import org.qubership.integration.platform.engine.service.debugger.ChainExecutionContext;
 
 import java.util.Optional;

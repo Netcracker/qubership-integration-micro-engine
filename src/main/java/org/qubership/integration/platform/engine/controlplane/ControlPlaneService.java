@@ -18,7 +18,7 @@ package org.qubership.integration.platform.engine.controlplane;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
+import org.qubership.integration.platform.engine.metadata.RouteType;
 
 import java.util.List;
 

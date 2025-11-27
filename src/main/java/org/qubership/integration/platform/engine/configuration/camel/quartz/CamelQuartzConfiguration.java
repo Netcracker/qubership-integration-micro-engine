@@ -26,7 +26,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.qubership.integration.platform.engine.camel.scheduler.StdSchedulerFactoryProxy;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineInfo;
+import org.qubership.integration.platform.engine.model.engine.EngineInfo;
 
 import java.util.Properties;
 import java.util.function.Consumer;

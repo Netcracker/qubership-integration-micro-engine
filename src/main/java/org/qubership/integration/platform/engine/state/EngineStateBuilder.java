@@ -6,11 +6,11 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.k.SourceDefinition;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
-import org.qubership.integration.platform.engine.model.deployment.engine.DeploymentStatus;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineDeployment;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineInfo;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineState;
-import org.qubership.integration.platform.engine.model.deployment.update.DeploymentInfo;
+import org.qubership.integration.platform.engine.model.engine.DeploymentInfo;
+import org.qubership.integration.platform.engine.model.engine.DeploymentStatus;
+import org.qubership.integration.platform.engine.model.engine.EngineDeployment;
+import org.qubership.integration.platform.engine.model.engine.EngineInfo;
+import org.qubership.integration.platform.engine.model.engine.EngineState;
 
 import java.util.Map;
 import java.util.Optional;

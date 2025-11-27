@@ -9,7 +9,7 @@ import org.apache.camel.impl.event.AbstractContextEvent;
 import org.apache.camel.impl.event.CamelContextStartedEvent;
 import org.apache.camel.spi.CamelEvent;
 import org.apache.camel.support.SimpleEventNotifierSupport;
-import org.qubership.integration.platform.engine.model.deployment.engine.EngineState;
+import org.qubership.integration.platform.engine.model.engine.EngineState;
 import org.qubership.integration.platform.engine.state.EngineStateBuilder;
 import org.qubership.integration.platform.engine.state.EngineStateReporter;
 

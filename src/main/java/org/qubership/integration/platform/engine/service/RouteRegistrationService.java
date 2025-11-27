@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.qubership.integration.platform.engine.configuration.ApplicationConfiguration;
 import org.qubership.integration.platform.engine.controlplane.ControlPlaneService;
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
-import org.qubership.integration.platform.engine.model.deployment.update.RouteType;
+import org.qubership.integration.platform.engine.metadata.RouteType;
 import org.qubership.integration.platform.engine.util.SimpleHttpUriUtils;
 
 import java.net.MalformedURLException;

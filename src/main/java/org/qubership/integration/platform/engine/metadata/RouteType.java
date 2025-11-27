@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.model.deployment.update;
+package org.qubership.integration.platform.engine.metadata;
 
 public enum RouteType {
     EXTERNAL_TRIGGER,

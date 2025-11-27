@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.qubership.integration.platform.engine.consul.ConsulConstants;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
-import org.qubership.integration.platform.engine.model.deployment.properties.ChainRuntimeProperties;
 
 import java.util.Collections;
 import java.util.Map;
