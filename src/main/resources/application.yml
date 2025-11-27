@@ -8,7 +8,7 @@ application:
   default_integration_domain_name: default # custom param
 
 security:
-  role-prefix: 'ROLE_'
+  role-prefix: "ROLE_"
 
 consul:
   url: ${CONSUL_URL:http://consul:8500}
@@ -46,13 +46,13 @@ camel:
       ssl-truststore-password: ${qip.local-truststore.store.password}
       ssl-truststore-type: JKS
     servlet:
-      http-registry: '#gatewayHttpRegistry'
+      http-registry: "#gatewayHttpRegistry"
   servlet:
     mapping:
       enabled: false
   constants:
     request-filter-header:
-      name: 'requestFilterHeaderAllowlist'
+      name: "requestFilterHeaderAllowlist"
 
 qip:
   camel:
@@ -219,22 +219,22 @@ quarkus:
     checkpoints:
       schemas: engine
       default-schema: engine
-      locations: 'classpath:db/migration/postgresql/static'
+      locations: "classpath:db/migration/postgresql/static"
       baseline-on-migrate: true
       create-schemas: true
       out-of-order: true
-      ignore-migration-patterns: '*:future,*:missing'
+      ignore-migration-patterns: "*:future,*:missing"
       validate-on-migrate: true
       active: true
       migrate-at-start: true
     quartz:
       schemas: engine
       default-schema: engine
-      locations: 'classpath:db/migration/postgresql/configs'
+      locations: "classpath:db/migration/postgresql/configs"
       baseline-on-migrate: true
       create-schemas: true
       out-of-order: true
-      ignore-migration-patterns: '*:future,*:missing'
+      ignore-migration-patterns: "*:future,*:missing"
       active: true
       migrate-at-start: true
   hibernate-orm:
