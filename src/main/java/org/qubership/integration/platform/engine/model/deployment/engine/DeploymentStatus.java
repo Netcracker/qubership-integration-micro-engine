@@ -18,7 +18,6 @@ package org.qubership.integration.platform.engine.model.deployment.engine;
 
 public enum DeploymentStatus {
     DEPLOYED,
-    REMOVED,
     FAILED,
     PROCESSING
 }

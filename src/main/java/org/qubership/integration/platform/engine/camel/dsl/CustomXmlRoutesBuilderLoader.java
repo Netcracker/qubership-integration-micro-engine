@@ -11,7 +11,7 @@ import org.apache.camel.spi.Resource;
 import org.apache.camel.spi.annotations.RoutesLoader;
 import org.qubership.integration.platform.engine.camel.dsl.errorhandling.ErrorHandler;
 import org.qubership.integration.platform.engine.camel.dsl.errorhandling.ErrorHandlerFactory;
-//import org.qubership.integration.platform.engine.camel.dsl.errorhandling.RouteBuilderWrapper;
+import org.qubership.integration.platform.engine.camel.dsl.notification.SourceProcessingNotifier;
 import org.qubership.integration.platform.engine.camel.dsl.preprocess.ResourceContentPreprocessingService;
 
 import java.nio.charset.StandardCharsets;
@@ -33,16 +33,27 @@ import static java.util.Objects.isNull;
 public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
     private ResourceContentPreprocessingService preprocessingService;
     private ErrorHandlerFactory errorHandlerFactory;
+    private SourceProcessingNotifier sourceProcessingNotifier;
 
     @Override
     public void preParseRoute(Resource resource) throws Exception {
-        super.preParseRoute(resource);
+        try {
+            getSourceProcessingNotifier().notifySourceProcessingStarted(resource);
+            super.preParseRoute(resource);
+        } catch (Exception e) {
+            handleError(resource, e);
+        }
     }
 
     @Override
     public RouteBuilder doLoadRouteBuilder(Resource input) throws Exception {
-        Resource preprocessedInput = preprocessInput(input);
-        return wrapRouteBuilder(input, super.doLoadRouteBuilder(preprocessedInput));
+        try {
+            Resource preprocessedInput = preprocessInput(input);
+            return wrapRouteBuilder(input, super.doLoadRouteBuilder(preprocessedInput));
+        } catch (Exception e) {
+            handleError(input, e);
+            return null;
+        }
     }
 
     private Resource preprocessInput(Resource input) throws Exception {
@@ -65,7 +76,6 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
     }
 
     private RouteBuilder wrapRouteBuilder(Resource resource, RouteBuilder builder) {
-        ErrorHandler errorHandler = getErrorHandler(resource);
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -76,8 +86,9 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
             public void addRoutesToCamelContext(CamelContext context) throws Exception {
                 try {
                     builder.addRoutesToCamelContext(context);
+                    getSourceProcessingNotifier().notifySourceLoaded(resource);
                 } catch (Exception e) {
-                    errorHandler.handleError(context, e);
+                    handleError(context, resource, e);
                 }
             }
 
@@ -85,17 +96,20 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
             public void addTemplatedRoutesToCamelContext(CamelContext context) throws Exception {
                 try {
                     builder.addTemplatedRoutesToCamelContext(context);
+                    getSourceProcessingNotifier().notifySourceLoaded(resource);
                 } catch (Exception e) {
-                    errorHandler.handleError(context, e);
+                    handleError(context, resource, e);
                 }
             }
 
             @Override
             public Set<String> updateRoutesToCamelContext(CamelContext context) throws Exception {
                 try {
-                    return builder.updateRoutesToCamelContext(context);
+                    Set<String> identifiers = builder.updateRoutesToCamelContext(context);
+                    getSourceProcessingNotifier().notifySourceLoaded(resource);
+                    return identifiers;
                 } catch (Exception e) {
-                    errorHandler.handleError(context, e);
+                    handleError(context, resource, e);
                     return Collections.emptySet();
                 }
             }
@@ -104,7 +118,7 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
             public void addLifecycleInterceptor(RouteBuilderLifecycleStrategy interceptor) {
                 builder.addLifecycleInterceptor(interceptor);
             }
-        }; // new RouteBuilderWrapper(builder, errorHandler);
+        };
     }
 
     private ErrorHandler getErrorHandler(Resource resource) {
@@ -116,5 +130,21 @@ public class CustomXmlRoutesBuilderLoader extends XmlRoutesBuilderLoader {
             errorHandlerFactory = CDI.current().select(ErrorHandlerFactory.class).get();
         }
         return errorHandlerFactory;
+    }
+
+    private SourceProcessingNotifier getSourceProcessingNotifier() {
+        if (isNull(sourceProcessingNotifier)) {
+            sourceProcessingNotifier = CDI.current().select(SourceProcessingNotifier.class).get();
+        }
+        return sourceProcessingNotifier;
+    }
+
+    private void handleError(Resource resource, Exception exception) throws Exception {
+        handleError(getCamelContext(), resource, exception);
+    }
+
+    private void handleError(CamelContext context, Resource resource, Exception exception) throws Exception {
+        getSourceProcessingNotifier().notifySourceLoadFailed(resource, exception);
+        getErrorHandler(resource).handleError(context, exception);
     }
 }

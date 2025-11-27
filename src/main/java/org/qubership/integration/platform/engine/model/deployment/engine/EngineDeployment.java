@@ -27,6 +27,5 @@ import org.qubership.integration.platform.engine.model.deployment.update.Deploym
 public class EngineDeployment {
     private DeploymentInfo deploymentInfo;
     private DeploymentStatus status;
-    private boolean suspended;
     private String errorMessage;
 }

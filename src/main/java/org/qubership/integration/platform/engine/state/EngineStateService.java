@@ -1,4 +1,4 @@
-package org.qubership.integration.platform.engine.consul;
+package org.qubership.integration.platform.engine.state;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.qubership.integration.platform.engine.consul.ConsulSessionService;
 import org.qubership.integration.platform.engine.model.deployment.engine.EngineInfo;
 import org.qubership.integration.platform.engine.model.deployment.engine.EngineState;
 
@@ -47,7 +48,7 @@ public class EngineStateService {
     ObjectMapper objectMapper;
 
     public void updateState(EngineState state) {
-        log.debug("Update engines state");
+        log.debug("Update engine state in Consul");
         String sessionId = consulSessionService.getOrCreateSession();
         if (isNull(sessionId)) {
             throw new RuntimeException("Active consul session is not present");

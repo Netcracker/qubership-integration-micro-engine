@@ -31,7 +31,4 @@ public class DeploymentInfo {
     private String snapshotId;
     private String snapshotName;
     private String chainStatusCode;
-    private Long createdWhen;
-    private boolean containsCheckpointElements;
-    private boolean containsSchedulerElements;
 }

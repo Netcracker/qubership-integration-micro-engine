@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.qubership.integration.platform.engine.consul;
+package org.qubership.integration.platform.engine.state;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

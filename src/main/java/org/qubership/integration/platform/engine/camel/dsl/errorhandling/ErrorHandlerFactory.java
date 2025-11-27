@@ -11,12 +11,8 @@ import org.qubership.integration.platform.engine.configuration.camel.StartupErro
 @Unremovable
 @ApplicationScoped
 public class ErrorHandlerFactory {
-    private final StartupErrorHandlingConfiguration configuration;
-
     @Inject
-    public ErrorHandlerFactory(StartupErrorHandlingConfiguration configuration) {
-        this.configuration = configuration;
-    }
+    StartupErrorHandlingConfiguration configuration;
 
     public ErrorHandler getErrorHandler(Resource resource) {
         return (context, exception) -> {
