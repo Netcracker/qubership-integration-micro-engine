@@ -20,7 +20,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.jms.ConnectionFactory;
-//import jakarta.jms.ConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
@@ -36,12 +35,10 @@ import org.qubership.integration.platform.engine.model.deployment.update.Deploym
 import org.qubership.integration.platform.engine.model.deployment.update.ElementProperties;
 import org.qubership.integration.platform.engine.service.VariablesService;
 import org.qubership.integration.platform.engine.service.deployment.processing.ElementProcessingAction;
-// import org.springframework.jndi.JndiObjectFactoryBean;
 import org.qubership.integration.platform.engine.service.deployment.processing.qualifiers.OnBeforeRoutesCreated;
 import org.springframework.jndi.JndiTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import javax.naming.Context;
@@ -109,52 +106,19 @@ public class JmsElementDependencyBinder extends ElementProcessingAction {
             environment.put(Context.SECURITY_CREDENTIALS, password);
         }
 
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, jmsInitialContextFactory);
-        env.put(Context.PROVIDER_URL, jmsProviderUrl);
-        if (secured) {
-            env.put(Context.SECURITY_PRINCIPAL, username);
-            env.put(Context.SECURITY_CREDENTIALS, password);
-        }
-
         Context initialContext;
         ConnectionFactory connectionFactory;
         try {
-            initialContext = new InitialContext(env);
+            initialContext = new InitialContext(environment);
             connectionFactory = (ConnectionFactory) initialContext.lookup(jmsConnectionFactoryName);
         } catch (NamingException e) {
             throw new RuntimeException("Unable to create JMS connection", e);
         }
 
-        //Queue queue = (Queue) initialContext.lookup("myQueue");
-
-        /* JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory();
-        jmsConnectionFactory.setUsername(username);
-        jmsConnectionFactory.setPassword(password);
-        jmsConnectionFactory.createConnection(); */
-
-
-        //jmsConnectionFactory.
-        //jmsConnectionFactory.createContext(username, password).create
-
-        /*
-        JndiObjectFactoryBean jmsConnectionFactory = new JndiObjectFactoryBean();
-        jmsConnectionFactory.setJndiTemplate(jmsJndiTemplate);
-        jmsConnectionFactory.setJndiName(jmsConnectionFactoryName);
-        jmsConnectionFactory.setProxyInterface(ConnectionFactory.class);
-        jmsConnectionFactory.setLookupOnStartup(false);
-        jmsConnectionFactory.setExposeAccessContext(true);
-        try {
-            jmsConnectionFactory.afterPropertiesSet();
-        } catch (NamingException exception) {
-            throw new RuntimeException("Failed to create JMS connection factory", exception);
-        }
-         */
-
         JndiTemplate jmsJndiTemplate = new JndiTemplate(environment);
         JndiDestinationResolver jndiDestinationResolver = new JndiDestinationResolver();
         jndiDestinationResolver.setJndiTemplate(jmsJndiTemplate);
-        //jndiDestinationResolver.setFallbackToDynamicDestination(true);
+        jndiDestinationResolver.setFallbackToDynamicDestination(true);
 
         JmsConfiguration jmsConfiguration = new JmsConfiguration();
         jmsConfiguration.setConnectionFactory(connectionFactory);
