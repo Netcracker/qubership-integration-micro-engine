@@ -19,6 +19,7 @@ package org.qubership.integration.platform.engine.service.deployment.processing.
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import jakarta.jms.ConnectionFactory;
 //import jakarta.jms.ConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.jms.JmsComponent;
@@ -34,16 +35,17 @@ import org.qubership.integration.platform.engine.model.deployment.update.Deploym
 import org.qubership.integration.platform.engine.model.deployment.update.ElementProperties;
 import org.qubership.integration.platform.engine.service.VariablesService;
 import org.qubership.integration.platform.engine.service.deployment.processing.ElementProcessingAction;
-//import org.springframework.jms.support.destination.JndiDestinationResolver;
-//import org.springframework.jndi.JndiObjectFactoryBean;
+// import org.springframework.jndi.JndiObjectFactoryBean;
 import org.qubership.integration.platform.engine.service.deployment.processing.qualifiers.OnBeforeRoutesCreated;
-import org.springframework.jndi.JndiTemplate;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import javax.naming.Context;
-//import javax.naming.NamingException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 @ApplicationScoped
 @OnBeforeRoutesCreated
@@ -84,17 +86,18 @@ public class JmsElementDependencyBinder extends ElementProcessingAction {
         String elementId = elementProperties.getElementId();
         Map<String, String> properties = elementProperties.getProperties();
         Properties environment = new Properties();
-        String jmsInitialContextFactory = variablesService.injectVariables(
-            properties.get(ChainProperties.JMS_INITIAL_CONTEXT_FACTORY));
-        String jmsProviderUrl = variablesService.injectVariables(properties.get(
-            ChainProperties.JMS_PROVIDER_URL));
+        //String jmsInitialContextFactory = variablesService.injectVariables("weblogic.jndi.WLInitialContextFactory");
+        String jmsInitialContextFactory = variablesService.injectVariables("org.apache.qpid.jms.jndi.JmsInitialContextFactory");
+        String jmsProviderUrl = variablesService.injectVariables("tcp://host.docker.internal:7001");
         String jmsConnectionFactoryName = variablesService.injectVariables(
-            properties.get(ChainProperties.JMS_CONNECTION_FACTORY_NAME));
+            "jmsdeployment/connectionFactory");
 
-        String username = variablesService.injectVariables(properties.get(
+        /* String username = variablesService.injectVariables(properties.get(
             ChainProperties.JMS_USERNAME));
         String password = variablesService.injectVariables(properties.get(
-            ChainProperties.JMS_PASSWORD));
+            ChainProperties.JMS_PASSWORD)); */
+        String username = "weblogic";
+        String password = "Fnv0$athbr4";
 
         environment.put(Context.INITIAL_CONTEXT_FACTORY, jmsInitialContextFactory);
         environment.put(Context.PROVIDER_URL, jmsProviderUrl);
@@ -105,7 +108,35 @@ public class JmsElementDependencyBinder extends ElementProcessingAction {
             environment.put(Context.SECURITY_CREDENTIALS, password);
         }
 
-        JndiTemplate jmsJndiTemplate = new JndiTemplate(environment);
+        //JndiTemplate jmsJndiTemplate = new JndiTemplate(environment);
+
+        Hashtable<String, String> env = new Hashtable<>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, jmsInitialContextFactory);
+        env.put(Context.PROVIDER_URL, jmsProviderUrl);
+        if (secured) {
+            env.put(Context.SECURITY_PRINCIPAL, username);
+            env.put(Context.SECURITY_CREDENTIALS, password);
+        }
+
+        Context initialContext;
+        ConnectionFactory connectionFactory;
+        try {
+            initialContext = new InitialContext(env);
+            connectionFactory = (ConnectionFactory) initialContext.lookup(jmsConnectionFactoryName);
+        } catch (NamingException e) {
+            throw new RuntimeException("Unable to create JMS connection", e);
+        }
+
+        //Queue queue = (Queue) initialContext.lookup("myQueue");
+
+        /* JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory();
+        jmsConnectionFactory.setUsername(username);
+        jmsConnectionFactory.setPassword(password);
+        jmsConnectionFactory.createConnection(); */
+
+
+        //jmsConnectionFactory.
+        //jmsConnectionFactory.createContext(username, password).create
 
         /*
         JndiObjectFactoryBean jmsConnectionFactory = new JndiObjectFactoryBean();
@@ -121,13 +152,13 @@ public class JmsElementDependencyBinder extends ElementProcessingAction {
         }
          */
 
-        //JndiDestinationResolver jndiDestinationResolver = new JndiDestinationResolver();
-        //jndiDestinationResolver.setJndiTemplate(jmsJndiTemplate);
-        //jndiDestinationResolver.setFallbackToDynamicDestination(true);
+        /* JndiDestinationResolver jndiDestinationResolver = new JndiDestinationResolver();
+        jndiDestinationResolver.setJndiTemplate(null);
+        jndiDestinationResolver.setFallbackToDynamicDestination(true); */
 
         JmsConfiguration jmsConfiguration = new JmsConfiguration();
-        //jmsConfiguration.setConnectionFactory((ConnectionFactory) jmsConnectionFactory.getObject());
-        //jmsConfiguration.setDestinationResolver(jndiDestinationResolver);
+        jmsConfiguration.setConnectionFactory(connectionFactory);
+        jmsConfiguration.setDestinationResolver(new DynamicDestinationResolver());
 
         WeblogicSecurityBean wlSecurityBean = wlSecurityBeanProvider.isUnsatisfied() ? null : wlSecurityBeanProvider.get();
         WeblogicSecureThreadFactory wlSecureThreadFactory = wlSecureThreadFactoryProvider.isUnsatisfied() ? null : wlSecureThreadFactoryProvider.get();
