@@ -1,11 +1,9 @@
 application:
   prefix: qip
   name: ${MICROSERVICE_NAME:qip-engine}
-  cloud_service_name: ${application.name}-${application.deployment_version}
-  deployment_version: ${DEPLOYMENT_VERSION:v1}
   namespace: ${NAMESPACE:local}
-  default_integration_domain_microservice_name: qip-engine # custom param
-  default_integration_domain_name: default # custom param
+  deployment_version: ${DEPLOYMENT_VERSION:v1}
+  cloud_service_name: ${application.name}-${application.deployment_version}
 
 security:
   role-prefix: 'ROLE_'
@@ -55,6 +53,8 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  engine:
+    domain: ${CAMEL_K_INTEGRATION:default}
   camel:
     startup:
       error-handling:
