@@ -3,6 +3,7 @@
 Engine service is a part of Qubership Integration Platform.
 
 This service:
+
 - Creates context for integration flows (so-called integration chains) using configuration provided by [Design-Time Catalog](https://github.com/Netcracker/qubership-integration-designtime-catalog), [Runtime Catalog](https://github.com/Netcracker/qubership-integration-runtime-catalog), and [Variables Management](https://github.com/Netcracker/qubership-integration-variables-management) services.
 - Manages registration of integration chains' endpoints on control plane.
 - Runs integration chains.
@@ -27,7 +28,7 @@ It can be run locally using a [docker compose configuration](https://github.com/
 Application parameters can be set by environment variables.
 
 | Environment variable                | Default value                                        | Description                                                                                                                  |
-|-------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | ROOT_LOG_LEVEL                      | INFO                                                 | Logging level                                                                                                                |
 | CONSUL_URL                          | `http://consul:8500`                                 | Consul URL                                                                                                                   |
 | CONSUL_ADMIN_TOKEN                  |                                                      | Consul assess token                                                                                                          |
@@ -66,9 +67,8 @@ Application parameters can be set by environment variables.
 | CAMEL_AMQP_PREDEPLOY_CHECK_ENABLED  | true                                                 | Enables predeploy check for AMQP elements.                                                                                   |
 | RUNTIME_CATALOG_SERVICE_URL         | `http://runtime-catalog:8080`                        | Runtime Catalog Service URL.                                                                                                 |
 
-
 Configuration can be overridden with values stored in Consul.
-The ```config/${NAMESPACE}``` prefix is used.
+The `config/${NAMESPACE}` prefix is used.
 
 Application has 'development' Spring profile to run service locally with minimum dependencies.
 
@@ -76,6 +76,7 @@ Application has 'development' Spring profile to run service locally with minimum
 
 This service relies on [Design-Time Catalog](https://github.com/Netcracker/qubership-integration-designtime-catalog), [Runtime Catalog](https://github.com/Netcracker/qubership-integration-runtime-catalog), and [Variables Management](https://github.com/Netcracker/qubership-integration-variables-management) services.
 It also requires:
+
 - Consul
 - OpenSearch
 - PostgreSQL
