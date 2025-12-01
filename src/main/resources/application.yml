@@ -1,9 +1,8 @@
 application:
   prefix: qip
-  name: ${MICROSERVICE_NAME:qip-engine}
+  name: ${CAMEL_K_INTEGRATION:default}
   namespace: ${NAMESPACE:local}
-  deployment_version: ${DEPLOYMENT_VERSION:v1}
-  cloud_service_name: ${application.name}-${application.deployment_version}
+  cloud_service_name: ${CLOUD_SERVICE_NAME}
 
 security:
   role-prefix: 'ROLE_'

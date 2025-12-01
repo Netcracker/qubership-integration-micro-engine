@@ -48,11 +48,11 @@ public class RouteRegistrationService {
         controlPlaneService.postPublicEngineRoutes(
                 gatewayTriggersRoutes.stream()
                         .filter(route -> RouteType.isPublicTriggerRoute(route.getType())).toList(),
-                applicationConfiguration.getDeploymentName());
+                applicationConfiguration.getCloudServiceName());
         controlPlaneService.postPrivateEngineRoutes(
                 gatewayTriggersRoutes.stream()
                         .filter(route -> RouteType.isPrivateTriggerRoute(route.getType())).toList(),
-                applicationConfiguration.getDeploymentName());
+                applicationConfiguration.getCloudServiceName());
 
         // cleanup triggers routes if necessary (for internal triggers)
         controlPlaneService.removeEngineRoutesByPathsAndEndpoint(
@@ -60,7 +60,7 @@ public class RouteRegistrationService {
                         .filter(route -> RouteType.triggerRouteCleanupNeeded(route.getType()))
                         .map(route -> Pair.of(route.getPath(), route.getType()))
                         .toList(),
-                applicationConfiguration.getDeploymentName());
+                applicationConfiguration.getCloudServiceName());
 
         // Register http based senders and service call paths '/{senderType}/{elementId}', '/system/{elementId}'
         routes.stream()
