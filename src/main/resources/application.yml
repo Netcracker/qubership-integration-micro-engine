@@ -105,7 +105,7 @@ qip:
         delay: 30
   mapper:
     cache-enabled: ${MAPPER_CACHE_ENABLED:true}
-  # sessions writer performance parameters
+  # session writer performance parameters
   sessions:
     sampler:
       probabilistic: ${SESSION_SAMPLER_PROBABILISTIC:1}
@@ -118,7 +118,7 @@ qip:
       elements-count-threshold: 2
     checkpoints:
       cleanup:
-        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than interval will be deleted, for example: '1 hour', '7 days', '2 years 3 month'
+        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than an interval will be deleted, for example, '1 hour', '7 days', '2 years 3 month'
         cron: ${SESSIONS_CHECKPOINTS_CLEANUP_CRON:0 0 0 ? * SAT} #  Cleanup task schedule in cron expression format
 
   local-truststore:
