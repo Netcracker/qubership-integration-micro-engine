@@ -51,7 +51,7 @@ public class ChainRuntimePropertiesService {
 
     public ChainRuntimeProperties getActualProperties(final String chainId) {
         Map<String, ChainRuntimeProperties> propMap = propertiesMap.get();
-        return Optional.of(propMap.get(chainId))
+        return Optional.ofNullable(propMap.get(chainId))
                 .or(() -> Optional.ofNullable(propMap.get(ConsulConstants.DEFAULT_CONSUL_SETTING_KEY)))
                 .orElse(ChainRuntimeProperties.getDefault());
     }
