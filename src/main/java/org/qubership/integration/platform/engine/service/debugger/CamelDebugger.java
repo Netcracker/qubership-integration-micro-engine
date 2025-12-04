@@ -397,7 +397,7 @@ public class CamelDebugger extends DefaultDebugger {
         switch (executionContext.getChainRuntimeProperties().calculateSessionLevel(exchange)) {
             case ERROR:
                 sessionsService.putStepElementToSingleElCache(exchange, sessionId,
-                        sessionElementId, executionContext.getStepName(), executionContext.getElementInfo().getId());
+                        sessionElementId, executionContext.getStepName(), executionContext.getElementInfo());
                 break;
             case INFO:
                 if (!ChainElementType.isElementForInfoSessionsLevel(executionContext.getElementType())) {
@@ -406,7 +406,7 @@ public class CamelDebugger extends DefaultDebugger {
             case DEBUG:
                 if (sessionShouldBeLogged) {
                     sessionsService.logSessionStepElementBefore(exchange, sessionId,
-                            sessionElementId, executionContext.getStepName(), executionContext.getElementInfo().getId());
+                            sessionElementId, executionContext.getStepName(), executionContext.getElementInfo());
 
                     String executionStepId = executionContext.getStepName();
                     if (ChainElementType.isWrappedInStepElement(executionContext.getElementType())) {

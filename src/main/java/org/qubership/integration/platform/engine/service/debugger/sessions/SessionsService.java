@@ -42,7 +42,6 @@ import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePr
 import org.qubership.integration.platform.engine.service.debugger.util.DebuggerUtils;
 import org.qubership.integration.platform.engine.service.debugger.util.PayloadExtractor;
 import org.qubership.integration.platform.engine.util.ExchangeUtil;
-import org.qubership.integration.platform.engine.util.IdentifierUtils;
 import org.springframework.lang.Nullable;
 
 import java.time.Duration;
@@ -168,11 +167,11 @@ public class SessionsService {
         Exchange exchange,
         String sessionId,
         String sessionElementId,
-        String stepId,
-        String stepChainElementId
+        String stepName,
+        ElementInfo elementInfo
     ) {
         SessionElementElastic sessionElement = buildSessionStepElementBefore(
-            exchange, sessionId, sessionElementId, stepId, stepChainElementId);
+            exchange, sessionId, sessionElementId, stepName, elementInfo);
 
         writer.scheduleElementToLogAndCache(sessionElement);
     }
@@ -182,13 +181,13 @@ public class SessionsService {
         Exchange exchange,
         String sessionId,
         String sessionElementId,
-        String stepId,
-        String stepChainElementId
+        String stepName,
+        ElementInfo elementInfo
     ) {
         Payload payload = extractor.extractPayload(exchange);
         SessionElementElastic sessionElement = SessionElementElastic.builder()
             .id(sessionElementId)
-            .elementName(stepId)
+            .elementName(stepName)
             .sessionId(sessionId)
             .started(LocalDateTime.now().toString())
             .bodyBefore(payload.getBody())
@@ -196,16 +195,15 @@ public class SessionsService {
             .propertiesBefore(extractor.convertToJson(payload.getProperties()))
             .contextBefore(extractor.convertToJson(payload.getContext()))
             .executionStatus(ExecutionStatus.IN_PROGRESS)
+            .actualElementChainId(elementInfo.getChainId())
+            .chainElementId(elementInfo.getId())
+            .camelElementName(elementInfo.getType())
             .build();
-
-        ElementInfo elementInfo = MetadataUtil.getElementInfo(exchange, stepId).orElse(ElementInfo.builder().build());
-        sessionElement.setActualElementChainId(elementInfo.getChainId());
 
         updateSessionInfoForElements(exchange, sessionElement);
 
-
-        if (IdentifierUtils.isValidUUID(stepId)) {
-            MetadataUtil.getWireTapInfo(exchange, stepId).ifPresentOrElse(
+        if (stepName.equals(elementInfo.getId())) {
+            MetadataUtil.getWireTapInfo(exchange, stepName).ifPresentOrElse(
                     wireTapInfo -> {
                         for (String id : wireTapInfo.getParentIds()) {
                             if (((Map<String, String>) exchange.getProperty(Properties.ELEMENT_EXECUTION_MAP))
@@ -218,18 +216,10 @@ public class SessionsService {
                     },
                     () -> sessionElement.setParentElementId(extractParentId(exchange, sessionId, elementInfo))
             );
-            sessionElement.setChainElementId(stepId);
             sessionElement.setElementName(elementInfo.getName());
-            sessionElement.setCamelElementName(elementInfo.getType());
         } else {
             sessionElement.setParentElementId(
                 (String) exchange.getProperty(Properties.STEPS, Deque.class).peek());
-            sessionElement.setElementName(stepId);
-
-            if (!StringUtils.isEmpty(stepChainElementId)) {
-                sessionElement.setChainElementId(stepChainElementId);
-                sessionElement.setCamelElementName(elementInfo.getType());
-            }
         }
         return sessionElement;
     }
@@ -262,6 +252,7 @@ public class SessionsService {
             .chainElementId(nodeId)
             .elementName(elementInfo.map(ElementInfo::getName).orElse(""))
             .camelElementName(elementInfo.map(ElementInfo::getType).orElse(""))
+            .actualElementChainId(elementInfo.map(ElementInfo::getChainId).orElse(null))
             .sessionId(sessionId)
             .parentElementId(
                 SessionsLoggingLevel.ERROR == chainRuntimePropertiesService.getRuntimeProperties(exchange)
@@ -397,11 +388,11 @@ public class SessionsService {
             Exchange exchange,
             String sessionId,
             String sessionElementId,
-            String stepId,
-            String stepChainElementId
+            String stepName,
+            ElementInfo elementInfo
     ) {
         SessionElementElastic sessionElement = buildSessionStepElementBefore(
-            exchange, sessionId, sessionElementId, stepId, stepChainElementId);
+            exchange, sessionId, sessionElementId, stepName, elementInfo);
 
         writer.putToSingleElementCache(sessionId, sessionElement);
     }

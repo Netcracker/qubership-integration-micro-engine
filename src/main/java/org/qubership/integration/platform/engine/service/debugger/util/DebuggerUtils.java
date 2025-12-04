@@ -42,12 +42,8 @@ public class DebuggerUtils {
     }
 
     public static String getStepChainElementId(String fullStepId) {
-        if (fullStepId.contains(ELEMENT_STEP_PREFIX)) {
-            return fullStepId.substring(
-                fullStepId.indexOf(ELEMENT_STEP_PREFIX) + ELEMENT_STEP_PREFIX.length());
-        } else {
-            return "";
-        }
+        int index = fullStepId.indexOf(ELEMENT_STEP_PREFIX);
+        return index < 0 ? fullStepId : fullStepId.substring(index + ELEMENT_STEP_PREFIX.length());
     }
 
     public static String getStepNameFormatted(String nodeId) {
