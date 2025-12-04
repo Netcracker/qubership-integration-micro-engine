@@ -366,8 +366,7 @@ public class SessionsService {
         writer.scheduleElementToLogAndCache(sessionElement);
 
         if (exchange.getProperty(CORRELATION_ID) != null) {
-            Pair<ReadWriteLock, Session> sessionPair = writer.getSessionFromCache(exchange.getProperty(
-                    Properties.SESSION_ID).toString());
+            Pair<ReadWriteLock, Session> sessionPair = writer.getSessionFromCache(ExchangeUtil.getSessionId(exchange));
             String correlationId = String.valueOf(exchange.getProperty(CORRELATION_ID));
             if (sessionPair != null && sessionPair.getRight() != null) {
                 sessionPair.getRight().setCorrelationId(correlationId);
@@ -423,7 +422,7 @@ public class SessionsService {
 
     private void updateSessionInfoForElements(Exchange exchange,
         SessionElementElastic sessionElement) {
-        String sessionId = exchange.getProperty(Properties.SESSION_ID).toString();
+        String sessionId = ExchangeUtil.getSessionId(exchange);
         Pair<ReadWriteLock, Session> sessionPair = writer.getSessionFromCache(sessionId);
 
         updateSessionInfoForElements(

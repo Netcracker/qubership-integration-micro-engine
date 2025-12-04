@@ -21,6 +21,7 @@ import org.apache.camel.ExchangePropertyKey;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
 import org.qubership.integration.platform.engine.service.ExecutionStatus;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
@@ -78,7 +79,7 @@ public class DebuggerUtils {
 
     public static void removeStepPropertyFromAllExchanges(Exchange exchange,
         String sessionElementId) {
-        String sessionId = exchange.getProperty(Properties.SESSION_ID, String.class);
+        String sessionId = ExchangeUtil.getSessionId(exchange);
         ConcurrentMap<String, Exchange> exchanges = (ConcurrentMap<String, Exchange>) exchange.getProperty(
             Properties.EXCHANGES, ConcurrentMap.class).get(sessionId);
         if (exchanges != null) {

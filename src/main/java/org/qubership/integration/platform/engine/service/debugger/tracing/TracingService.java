@@ -30,6 +30,7 @@ import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 import org.slf4j.MDC;
 
 import java.util.HashMap;
@@ -67,8 +68,7 @@ public class TracingService {
 
     public void addChainTracingTags(Exchange exchange) {
         Map<String, String> customTags = new HashMap<>();
-        customTags.put(Properties.SESSION_ID,
-            exchange.getProperty(Properties.SESSION_ID).toString());
+        customTags.put(Properties.SESSION_ID, ExchangeUtil.getSessionId(exchange));
         ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
         customTags.put(ChainProperties.CHAIN_ID, chainInfo.getId());
         customTags.put(ChainProperties.CHAIN_NAME, chainInfo.getName());

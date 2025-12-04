@@ -348,7 +348,7 @@ public class ChainLogger {
         ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
         String chainId = chainInfo.getId();
         String chainName = chainInfo.getName();
-        String sessionId = exchange.getProperty(Properties.SESSION_ID).toString();
+        String sessionId = ExchangeUtil.getSessionId(exchange);
         String elementName = null;
         String elementId = null;
 

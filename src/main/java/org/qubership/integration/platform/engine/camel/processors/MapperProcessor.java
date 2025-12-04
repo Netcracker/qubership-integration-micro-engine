@@ -42,6 +42,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.qubership.integration.platform.engine.mapper.atlasmap.CustomAtlasContext;
 import org.qubership.integration.platform.engine.mapper.atlasmap.ValidationResult;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -163,7 +164,7 @@ public class MapperProcessor implements Processor {
     }
 
     private void logIssues(Exchange exchange, AtlasSession session) {
-        String sessionId = exchange.getProperty(Properties.SESSION_ID, String.class);
+        String sessionId = ExchangeUtil.getSessionId(exchange);
 
         List<Audit> audits = session.getAudits().getAudit();
         audits.stream()

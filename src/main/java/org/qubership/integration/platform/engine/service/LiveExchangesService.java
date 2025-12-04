@@ -63,7 +63,7 @@ public class LiveExchangesService {
             result.add(LiveExchangeDTO.builder()
                         .exchangeId(exchange.getExchangeId())
                         .deploymentId(chainInfo.getDeploymentId())
-                        .sessionId(exchange.getProperty(CamelConstants.Properties.SESSION_ID, String.class))
+                        .sessionId(ExchangeUtil.getSessionId(exchange))
                         .chainId(chainInfo.getId())
                         .sessionStartTime(ExchangeUtil.getSessionStartTime(exchange))
                         .sessionDuration(ExchangeUtil.getSessionDuration(exchange))

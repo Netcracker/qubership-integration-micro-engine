@@ -41,6 +41,7 @@ import org.qubership.integration.platform.engine.service.debugger.metrics.Metric
 import org.qubership.integration.platform.engine.service.debugger.sessions.SessionsService;
 import org.qubership.integration.platform.engine.service.debugger.util.DebuggerUtils;
 import org.qubership.integration.platform.engine.service.debugger.util.PayloadExtractor;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 import org.qubership.integration.platform.engine.util.InjectUtil;
 
 import java.time.Duration;
@@ -103,7 +104,7 @@ public class ChainFinishProcessor implements Processor {
         }
         threadsStatuses.put(currentThreadId, currentExchangeStatus);
 
-        String sessionId = exchange.getProperty(CamelConstants.Properties.SESSION_ID, String.class);
+        String sessionId = ExchangeUtil.getSessionId(exchange);
         Boolean isMainExchange = exchange.getProperty(Properties.IS_MAIN_EXCHANGE, false, Boolean.class);
 
         if (isMainExchange) {

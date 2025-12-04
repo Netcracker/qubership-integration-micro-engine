@@ -169,7 +169,7 @@ public class CamelDebugger extends DefaultDebugger {
         SessionsLoggingLevel sessionLevel = chainRuntimeProperties.calculateSessionLevel(exchange);
         LogLoggingLevel logLoggingLevel = chainRuntimeProperties.getLogLoggingLevel();
 
-        String sessionId = exchange.getProperty(CamelConstants.Properties.SESSION_ID).toString();
+        String sessionId = ExchangeUtil.getSessionId(exchange);
         String nodeId = definition.getId();
         boolean sessionShouldBeLogged = exchange.getProperty(
                 CamelConstants.Properties.SESSION_SHOULD_BE_LOGGED,
@@ -295,8 +295,7 @@ public class CamelDebugger extends DefaultDebugger {
                     }
                 case DEBUG:
                     if (sessionShouldBeLogged) {
-                        String sessionId = exchange.getProperty(CamelConstants.Properties.SESSION_ID)
-                                .toString();
+                        String sessionId = ExchangeUtil.getSessionId(exchange);
                         String splitIdChain = (String) exchange.getProperty(
                                 CamelConstants.Properties.SPLIT_ID_CHAIN);
                         String sessionElementId = ((Map<String, String>) exchange.getProperty(
@@ -385,7 +384,7 @@ public class CamelDebugger extends DefaultDebugger {
     @SuppressWarnings("checkstyle:FallThrough")
     private void stepStarted(Exchange exchange, StepEvent event) {
         ChainExecutionContext executionContext = getExecutionContext(exchange, event.getStepId());
-        String sessionId = exchange.getProperty(CamelConstants.Properties.SESSION_ID).toString();
+        String sessionId = ExchangeUtil.getSessionId(exchange);
 
         String sessionElementId = UUID.randomUUID().toString();
         boolean sessionShouldBeLogged = exchange.getProperty(
@@ -431,7 +430,7 @@ public class CamelDebugger extends DefaultDebugger {
     @SuppressWarnings("checkstyle:FallThrough")
     private void stepFinished(Exchange exchange, StepEvent event, boolean failed) {
         ChainExecutionContext executionContext = getExecutionContext(exchange, event.getStepId());
-        String sessionId = exchange.getProperty(CamelConstants.Properties.SESSION_ID).toString();
+        String sessionId = ExchangeUtil.getSessionId(exchange);
 
         boolean sessionShouldBeLogged = exchange.getProperty(
                 CamelConstants.Properties.SESSION_SHOULD_BE_LOGGED,
