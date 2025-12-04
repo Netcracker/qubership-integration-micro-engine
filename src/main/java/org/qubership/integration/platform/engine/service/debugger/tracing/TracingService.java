@@ -68,7 +68,7 @@ public class TracingService {
 
     public void addChainTracingTags(Exchange exchange) {
         Map<String, String> customTags = new HashMap<>();
-        customTags.put(Properties.SESSION_ID, ExchangeUtil.getSessionId(exchange));
+        customTags.put(ChainProperties.SESSION_ID, ExchangeUtil.getSessionId(exchange));
         ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
         customTags.put(ChainProperties.CHAIN_ID, chainInfo.getId());
         customTags.put(ChainProperties.CHAIN_NAME, chainInfo.getName());
