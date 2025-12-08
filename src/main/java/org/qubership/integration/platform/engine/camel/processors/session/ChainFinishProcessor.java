@@ -60,7 +60,7 @@ public class ChainFinishProcessor implements Processor {
 
     private final MetricsService metricsService;
     private final ChainRuntimePropertiesService propertiesService;
-    private final SessionsService sessionsService;
+    private final Optional<SessionsService> sessionsService;
     private final Optional<SessionsKafkaReportingService> sessionsKafkaReportingService;
     private final Optional<SdsService> sdsService;
     private final ChainLogger chainLogger;
@@ -70,13 +70,13 @@ public class ChainFinishProcessor implements Processor {
     @Inject
     public ChainFinishProcessor(MetricsService metricsService,
                                 ChainRuntimePropertiesService propertiesService,
-                                SessionsService sessionsService,
+                                Instance<SessionsService> sessionsService,
                                 Instance<SessionsKafkaReportingService> sessionsKafkaReportingService,
                                 Instance<SdsService> sdsService,
                                 ChainLogger chainLogger, PayloadExtractor payloadExtractor) {
         this.metricsService = metricsService;
         this.propertiesService = propertiesService;
-        this.sessionsService = sessionsService;
+        this.sessionsService = InjectUtil.injectOptional(sessionsService);
         this.sessionsKafkaReportingService = InjectUtil.injectOptional(sessionsKafkaReportingService);
         this.sdsService = InjectUtil.injectOptional(sdsService);
         this.chainLogger = chainLogger;
@@ -135,20 +135,23 @@ public class ChainFinishProcessor implements Processor {
             if (ExecutionStatus.COMPLETED_WITH_ERRORS.equals(executionStatus) && (
                 sessionLevel == SessionsLoggingLevel.ERROR
                     || sessionLevel == SessionsLoggingLevel.INFO)) {
-                String sessionElementId = sessionsService.moveFromSingleElCacheToCommonCache(sessionId);
-
-                if (StringUtils.isNotEmpty(sessionElementId)) {
-                    sessionsService.logSessionElementAfter(
-                            exchange,
-                            exchange.getProperty(Properties.LAST_EXCEPTION, Exception.class),
-                            sessionId, sessionElementId);
-                }
+                sessionsService.ifPresent(svc -> {
+                    String sessionElementId = svc.moveFromSingleElCacheToCommonCache(sessionId);
+                    if (StringUtils.isNotEmpty(sessionElementId)) {
+                        svc.logSessionElementAfter(
+                                exchange,
+                                exchange.getProperty(Properties.LAST_EXCEPTION, Exception.class),
+                                sessionId, sessionElementId);
+                    }
+                });
             }
 
             camelDebugger.finishCheckpointSession(exchange, sessionId, executionStatus, duration);
 
-            sessionsService.finishSession(exchange, executionStatus, finished, duration,
-                    syncDurationMap.getOrDefault(sessionId, 0L));
+            sessionsService.ifPresent(svc -> {
+                svc.finishSession(exchange, executionStatus, finished, duration,
+                        syncDurationMap.getOrDefault(sessionId, 0L));
+            });
 
             syncDurationMap.remove(sessionId);
 
