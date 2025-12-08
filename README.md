@@ -3,6 +3,7 @@
 Engine service is a part of Qubership Integration Platform.
 
 This service:
+
 - Creates context for integration flows (so-called integration chains) using configuration provided by [Design-Time Catalog](https://github.com/Netcracker/qubership-integration-designtime-catalog), [Runtime Catalog](https://github.com/Netcracker/qubership-integration-runtime-catalog), and [Variables Management](https://github.com/Netcracker/qubership-integration-variables-management) services.
 - Manages registration of integration chains' endpoints on control plane.
 - Runs integration chains.
@@ -26,37 +27,36 @@ It can be run locally using a [docker compose configuration](https://github.com/
 
 Application parameters can be set by environment variables.
 
-| Environment variable                | Default value                                        | Description                                                                                                                  |
-|-------------------------------------|------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| ROOT_LOG_LEVEL                      | INFO                                                 | Logging level                                                                                                                |
-| CONSUL_URL                          | `http://consul:8500`                                 | Consul URL                                                                                                                   |
-| CONSUL_ADMIN_TOKEN                  |                                                      | Consul assess token                                                                                                          |
-| KUBE_TOKEN_PATH                     | /var/run/secrets/kubernetes.io/serviceaccount/token  | Kubernetes token path                                                                                                        |
-| KUBE_CERT_PATH                      | /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | Kubernetes certificate path                                                                                                  |
-| NAMESPACE                           |                                                      | Kubernetes namespace.                                                                                                        |
-| TRACING_ENABLED                     | false                                                | If true, enables application tracing via OpenTelemetry protocol.                                                             |
-| TRACING_HOST                        |                                                      | Tracing endpoint URL.                                                                                                        |
-| TRACING_SAMPLER_PROBABILISTIC       | 0.01                                                 | Tracing sampling probability. By default, application samples only 1% of requests to prevent overwhelming the trace backend. |
-| POSTGRES_URL                        | postgres:5432/postgres                               | Database URL                                                                                                                 |
-| POSTGRES_USER                       | postgres                                             | Database user                                                                                                                |
-| POSTGRES_PASSWORD                   | postgres                                             | Database password                                                                                                            |
-| PG_MAX_POOL_SIZE                    | 30                                                   | The maximum number of connections that can be held in the connection pool.                                                   |
-| PG_MIN_IDLE                         | 0                                                    |                                                                                                                              |
-| PG_IDLE_TIMEOUT                     | 300000                                               | Sets the maximum allowed idle time between queries, when not in a transaction.                                               |
-| PG_LEAK_DETECTION_INTERVAL          | 30000                                                | The maximum number of milliseconds that a client will wait for a connection from the pool.                                   |
-| OPENSEARCH_HOST                     | opensearch                                           | OpenSearch hostname                                                                                                          |
-| OPENSEARCH_PORT                     | 9200                                                 | OpenSearch port                                                                                                              |
-| OPENSEARCH_PROTOCOL                 | http                                                 | OpenSearch service protocol                                                                                                  |
-| OPENSEARCH_USERNAME                 |                                                      | OpenSearch username                                                                                                          |
-| OPENSEARCH_PASSWORD                 |                                                      | OpenSearch password                                                                                                          |
-| OPENSEARCH_PREFIX                   |                                                      | A prefix string that is if not empty added followed by underscore to the OpenSearch index name.                              |
-| OPENSEARCH_INDEX_SHARDS             | 3                                                    | OpenSearch index shards count                                                                                                |
-| OPENSEARCH_ROLLOVER_MIN_INDEX_SIZE  |                                                      | Minimal index size to rollover. Uneset by default.                                                                           |
-| MONITORING_ENABLED                  | false                                                |                                                                                                                              |
-
+| Environment variable               | Default value                                        | Description                                                                                                                  |
+| ---------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| ROOT_LOG_LEVEL                     | INFO                                                 | Logging level                                                                                                                |
+| CONSUL_URL                         | `http://consul:8500`                                 | Consul URL                                                                                                                   |
+| CONSUL_ADMIN_TOKEN                 |                                                      | Consul assess token                                                                                                          |
+| KUBE_TOKEN_PATH                    | /var/run/secrets/kubernetes.io/serviceaccount/token  | Kubernetes token path                                                                                                        |
+| KUBE_CERT_PATH                     | /var/run/secrets/kubernetes.io/serviceaccount/ca.crt | Kubernetes certificate path                                                                                                  |
+| NAMESPACE                          |                                                      | Kubernetes namespace.                                                                                                        |
+| TRACING_ENABLED                    | false                                                | If true, enables application tracing via OpenTelemetry protocol.                                                             |
+| TRACING_HOST                       |                                                      | Tracing endpoint URL.                                                                                                        |
+| TRACING_SAMPLER_PROBABILISTIC      | 0.01                                                 | Tracing sampling probability. By default, application samples only 1% of requests to prevent overwhelming the trace backend. |
+| POSTGRES_URL                       | postgres:5432/postgres                               | Database URL                                                                                                                 |
+| POSTGRES_USER                      | postgres                                             | Database user                                                                                                                |
+| POSTGRES_PASSWORD                  | postgres                                             | Database password                                                                                                            |
+| PG_MAX_POOL_SIZE                   | 30                                                   | The maximum number of connections that can be held in the connection pool.                                                   |
+| PG_MIN_IDLE                        | 0                                                    |                                                                                                                              |
+| PG_IDLE_TIMEOUT                    | 300000                                               | Sets the maximum allowed idle time between queries, when not in a transaction.                                               |
+| PG_LEAK_DETECTION_INTERVAL         | 30000                                                | The maximum number of milliseconds that a client will wait for a connection from the pool.                                   |
+| OPENSEARCH_HOST                    | opensearch                                           | OpenSearch hostname                                                                                                          |
+| OPENSEARCH_PORT                    | 9200                                                 | OpenSearch port                                                                                                              |
+| OPENSEARCH_PROTOCOL                | http                                                 | OpenSearch service protocol                                                                                                  |
+| OPENSEARCH_USERNAME                |                                                      | OpenSearch username                                                                                                          |
+| OPENSEARCH_PASSWORD                |                                                      | OpenSearch password                                                                                                          |
+| OPENSEARCH_PREFIX                  |                                                      | A prefix string that is if not empty added followed by underscore to the OpenSearch index name.                              |
+| OPENSEARCH_INDEX_SHARDS            | 3                                                    | OpenSearch index shards count                                                                                                |
+| OPENSEARCH_ROLLOVER_MIN_INDEX_SIZE |                                                      | Minimal index size to rollover. Uneset by default.                                                                           |
+| MONITORING_ENABLED                 | false                                                |                                                                                                                              |
 
 Configuration can be overridden with values stored in Consul.
-The ```config/${NAMESPACE}``` prefix is used.
+The `config/${NAMESPACE}` prefix is used.
 
 Application has 'development' Spring profile to run service locally with minimum dependencies.
 
@@ -64,6 +64,7 @@ Application has 'development' Spring profile to run service locally with minimum
 
 This service relies on [Design-Time Catalog](https://github.com/Netcracker/qubership-integration-designtime-catalog), [Runtime Catalog](https://github.com/Netcracker/qubership-integration-runtime-catalog), and [Variables Management](https://github.com/Netcracker/qubership-integration-variables-management) services.
 It also requires:
+
 - Consul
 - OpenSearch
 - PostgreSQL
