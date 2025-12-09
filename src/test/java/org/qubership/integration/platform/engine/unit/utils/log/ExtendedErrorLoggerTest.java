@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLogger;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLoggerFactory;
 import org.qubership.integration.platform.engine.testutils.DisplayNameUtils;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLogger;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

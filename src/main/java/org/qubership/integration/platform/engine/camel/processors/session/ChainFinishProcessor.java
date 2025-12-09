@@ -148,8 +148,9 @@ public class ChainFinishProcessor implements Processor {
 
             camelDebugger.finishCheckpointSession(exchange, sessionId, executionStatus, duration);
 
+            ExecutionStatus finalExecutionStatus = executionStatus;
             sessionsService.ifPresent(svc -> {
-                svc.finishSession(exchange, executionStatus, finished, duration,
+                svc.finishSession(exchange, finalExecutionStatus, finished, duration,
                         syncDurationMap.getOrDefault(sessionId, 0L));
             });
 

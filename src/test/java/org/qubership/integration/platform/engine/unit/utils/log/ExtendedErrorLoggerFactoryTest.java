@@ -18,9 +18,9 @@ package org.qubership.integration.platform.engine.unit.utils.log;
 
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLogger;
+import org.qubership.integration.platform.engine.logging.ExtendedErrorLoggerFactory;
 import org.qubership.integration.platform.engine.testutils.DisplayNameUtils;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLogger;
-import org.qubership.integration.platform.engine.util.log.ExtendedErrorLoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
