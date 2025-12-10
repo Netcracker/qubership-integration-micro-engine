@@ -16,22 +16,15 @@
 
 package org.qubership.integration.platform.engine.service;
 
-import org.apache.camel.CamelContext;
-import org.qubership.integration.platform.engine.model.deployment.update.DeploymentInfo;
-
-import java.util.List;
-import java.util.Map;
+import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.ElementInfo;
 
 public interface SdsService {
-    void removeSchedulerJobs(Iterable<CamelContext> contextsToRemove);
+    void removeSchedulerJobs(ChainInfo chainInfo);
 
-    void removeSchedulerJobs(String deploymentId);
-
-    void registerSchedulerJobs(CamelContext context, DeploymentInfo deploymentInfo, List<Map<String, String>> propertiesList);
+    void registerSchedulerJobs(ChainInfo chainInfo, ElementInfo elementInfo);
 
     void setJobInstanceFinished(String jobExecutionId);
 
     void setJobInstanceFailed(String jobExecutionId, Throwable exception);
-
-    void getJobsMetadata();
 }

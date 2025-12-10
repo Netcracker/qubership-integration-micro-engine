@@ -35,6 +35,7 @@ import org.qubership.integration.platform.engine.persistence.shared.entity.Check
 import org.qubership.integration.platform.engine.persistence.shared.entity.Property;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
 import org.qubership.integration.platform.engine.service.debugger.util.MessageHelper;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 import org.qubership.integration.platform.engine.util.ExchangeUtils;
 import org.qubership.integration.platform.engine.util.InjectUtil;
 
@@ -93,9 +94,7 @@ public class ContextSaverProcessor implements Processor {
                         contextOperations.get().getSerializableContextData()));
             }
 
-            checkpointSessionService.saveAndAssignCheckpoint(
-                    checkpoint,
-                    exchange.getProperty(CamelConstants.Properties.SESSION_ID, String.class));
+            checkpointSessionService.saveAndAssignCheckpoint(checkpoint, ExchangeUtil.getSessionId(exchange));
         } catch (Exception e) {
             log.error("Failed to create session checkpoint", e);
             throw new RuntimeException("Failed to create session checkpoint", e);

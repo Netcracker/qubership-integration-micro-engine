@@ -1,11 +1,8 @@
 application:
   prefix: qip
-  name: ${MICROSERVICE_NAME:qip-engine}
-  cloud_service_name: ${application.name}-${application.deployment_version}
-  deployment_version: ${DEPLOYMENT_VERSION:v1}
+  name: ${CAMEL_K_INTEGRATION:default}
   namespace: ${NAMESPACE:local}
-  default_integration_domain_microservice_name: qip-engine # custom param
-  default_integration_domain_name: default # custom param
+  cloud_service_name: ${CLOUD_SERVICE_NAME}
 
 security:
   role-prefix: 'ROLE_'
@@ -32,7 +29,7 @@ camel:
     enabled: true
   main:
     name: Camel Context
-    autoStartup: false
+    autoStartup: true
     messageHistory: true
     streamCachingEnabled: true # enable exchange payload spooling
     streamCachingBufferSize: 16384
@@ -55,7 +52,13 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  engine:
+    domain: ${CAMEL_K_INTEGRATION:default}
   camel:
+    startup:
+      error-handling:
+        ignore-variables-errors: false
+        ignore-route-loading-errors: false
     routes-prefix: /routes
     stream-caching:
       enabled: true # enable exchange payload spooling
@@ -64,15 +67,6 @@ qip:
     component:
       quartz:
         thread-pool-count: 10
-      kafka:
-        predeploy-check-enabled: ${CAMEL_KAFKA_PREDEPLOY_CHECK_ENABLED:true}
-      rabbitmq:
-        predeploy-check-enabled: ${CAMEL_AMQP_PREDEPLOY_CHECK_ENABLED:true}
-  deployments:
-    retry-delay: 30s
-    thread-pool:
-      core-size: 3
-      max-size: 3
   context-service:
     cleanup:
       cron: ${CONTEXT_RECORDS_CLEANUP_CRON:0 0 0 ? * SAT} #  Cleanup task schedule in cron expression format
@@ -111,7 +105,7 @@ qip:
         delay: 30
   mapper:
     cache-enabled: ${MAPPER_CACHE_ENABLED:true}
-  # sessions writer performance parameters
+  # session writer performance parameters
   sessions:
     sampler:
       probabilistic: ${SESSION_SAMPLER_PROBABILISTIC:1}
@@ -124,7 +118,7 @@ qip:
       elements-count-threshold: 2
     checkpoints:
       cleanup:
-        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than interval will be deleted, for example: '1 hour', '7 days', '2 years 3 month'
+        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than an interval will be deleted, for example, '1 hour', '7 days', '2 years 3 month'
         cron: ${SESSIONS_CHECKPOINTS_CLEANUP_CRON:0 0 0 ? * SAT} #  Cleanup task schedule in cron expression format
 
   local-truststore:
@@ -135,9 +129,6 @@ qip:
       location: :/tmp/cert/${SSL_SECRET:defaultsslcertificate}
   production-mode:
     enabled: ${PRODUCTION_MODE:false}
-  internal-services:
-    runtime-catalog:
-      url: ${RUNTIME_CATALOG_SERVICE_URL:http://runtime-catalog:8080}
   restclient:
     timeout: 300000
   idempotency:
@@ -160,10 +151,9 @@ quarkus:
   application:
     name: ${application.name}
   log:
-    level: INFO
+    level: ${ROOT_LOG_LEVEL:INFO}
     console:
-      level: INFO
-      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-7p] [request_id=%-15X{requestId}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId}] [spanId=%-16X{X-B3-SpanId}] [method=%-30.30M]  - %m%n"
+      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-7p] [request_id=%-15X{requestId}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId}] [spanId=%-16X{X-B3-SpanId}] [method=%-30.30M] [log_type=%-3X{logType:--}] [session_id=%-36X{internalProperty_sessionId:--}] [chain_id=%-36X{chainId:--}] [chain=%-30X{chainName:--}] [chain_element_id=%-36X{elementId:--}] [chain_element=%-15X{elementName:--}] - %m%n"
       filter: camel-job-filter
     category:
       "org.qubership.integration.platform.engine.service.debugger.logging.ChainLogger":
@@ -175,11 +165,6 @@ quarkus:
     checkpoints:
       url: "http://localhost:8080${qip.camel.routes-prefix}"
       scope: jakarta.inject.Singleton
-    runtime-catalog:
-      url: ${RUNTIME_CATALOG_SERVICE_URL:http://runtime-catalog:8080}
-      scope: jakarta.inject.Singleton
-      connect-timeout: 300000
-      read-timeout: 300000
     consul:
       url: ${CONSUL_URL:http://consul:8500}
       scope: jakarta.inject.Singleton
@@ -254,7 +239,6 @@ quarkus:
         statement-batch-size: 30
       unsupported-properties:
         "hibernate.order_inserts": true
-        "hibernate.order_updates": true
         "hibernate.jdbc.lob.non_contextual_creation": true
         "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
     quartz:
@@ -271,7 +255,6 @@ quarkus:
         statement-batch-size: 30
       unsupported-properties:
         "hibernate.order_inserts": true
-        "hibernate.order_updates": true
         "hibernate.jdbc.lob.non_contextual_creation": true
         "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
   smallrye-openapi:
@@ -282,8 +265,6 @@ quarkus:
       servlet-class: org.qubership.integration.platform.engine.camel.components.servlet.CustomCamelHttpTransportServlet
       url-patterns:
         - "${qip.camel.routes-prefix}/*"
-    debug:
-      enabled: true
     trace:
       enabled: ${TRACING_ENABLED:false}
   quartz:
