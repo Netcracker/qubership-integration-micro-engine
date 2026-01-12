@@ -1,3 +1,12 @@
+cloud:
+  microservice:
+    name: ${MICROSERVICE_NAME:qip-engine}
+    namespace: ${NAMESPACE:local}
+
+tenant:
+  default:
+    id: default
+
 application:
   prefix: qip
   name: ${MICROSERVICE_NAME:qip-engine}
@@ -55,6 +64,8 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  maas:
+    enabled: ${MAAS_ENABLED:true}
   camel:
     routes-prefix: /routes
     stream-caching:
@@ -191,6 +202,11 @@ quarkus:
       host-port: ${CONSUL_URL:consul:8500}
       use-https: false
       token: ${CONSUL_ADMIN_TOKEN}
+  consul-source-config:
+    agent:
+      url: ${CONSUL_URL:consul:8500}
+    m2m:
+      enabled: false
   datasource:
     checkpoints:
       db-kind: postgresql

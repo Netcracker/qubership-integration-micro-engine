@@ -4,9 +4,9 @@ import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import org.qubership.integration.platform.engine.maas.MaasService;
 import org.qubership.integration.platform.engine.model.deployment.update.DeploymentConfiguration;
 import org.qubership.integration.platform.engine.model.deployment.update.DeploymentUpdate;
-import org.qubership.integration.platform.engine.service.MaasService;
 import org.qubership.integration.platform.engine.service.deployment.preprocessor.DeploymentPreprocessor;
 import org.qubership.integration.platform.engine.util.InjectUtil;
 

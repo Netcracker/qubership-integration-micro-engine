@@ -212,6 +212,19 @@
                 <artifactId>groovy-xml</artifactId>
                 <version>${groovy.xml.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.netcracker.cloud.quarkus</groupId>
+                <artifactId>maas-client-quarkus-bom</artifactId>
+                <version>9.0.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.netcracker.cloud.quarkus</groupId>
+                <artifactId>blue-green-state-monitor-quarkus</artifactId>
+                <version>2.0.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -539,6 +552,19 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>maas-client-quarkus-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>maas-client-quarkus-rabbit</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>blue-green-state-monitor-quarkus</artifactId>
         </dependency>
     </dependencies>
 
