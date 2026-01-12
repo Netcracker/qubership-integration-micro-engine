@@ -16,6 +16,9 @@
 
 package org.qubership.integration.platform.engine.rest.v1.controller;
 
+import com.netcracker.cloud.routesregistration.common.annotation.Gateway;
+import com.netcracker.cloud.routesregistration.common.annotation.Route;
+import com.netcracker.cloud.routesregistration.common.gateway.route.RouteType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -26,6 +29,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.qubership.integration.platform.engine.persistence.shared.entity.SessionInfo;
+import org.qubership.integration.platform.engine.rest.RestApiConstants;
 import org.qubership.integration.platform.engine.rest.v1.dto.checkpoint.CheckpointSessionDTO;
 import org.qubership.integration.platform.engine.rest.v1.mapper.SessionInfoMapper;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
@@ -36,10 +40,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Path("/v1/engine/sessions")
+@Path(RestApiConstants.V1_ROUTE_PREFIX + SessionController.SESSIONS_PATH)
+@Route(RouteType.PUBLIC)
+@Gateway(RestApiConstants.V1_PUBLIC_ROUTE_PREFIX + SessionController.SESSIONS_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @Tag(name = "session-controller", description = "Session Controller")
 public class SessionController {
+    public static final String SESSIONS_PATH = "/sessions";
+
     private final CheckpointSessionService checkpointSessionService;
     private final SessionInfoMapper sessionInfoMapper;
 

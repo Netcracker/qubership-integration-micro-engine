@@ -16,6 +16,9 @@
 
 package org.qubership.integration.platform.engine.rest.v1.controller;
 
+import com.netcracker.cloud.routesregistration.common.annotation.Gateway;
+import com.netcracker.cloud.routesregistration.common.annotation.Route;
+import com.netcracker.cloud.routesregistration.common.gateway.route.RouteType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -30,6 +33,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestResponse;
 import org.jetbrains.annotations.NotNull;
 import org.qubership.integration.platform.engine.persistence.shared.entity.SessionInfo;
+import org.qubership.integration.platform.engine.rest.RestApiConstants;
 import org.qubership.integration.platform.engine.rest.v1.dto.checkpoint.CheckpointSessionDTO;
 import org.qubership.integration.platform.engine.rest.v1.mapper.SessionInfoMapper;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
@@ -39,12 +43,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Slf4j
-@Path("/v1/engine/chains/{chainId}")
+@Path(RestApiConstants.V1_ROUTE_PREFIX + CheckpointSessionController.CHECKPOINT_SESSION_PATH)
+@Route(RouteType.PUBLIC)
+@Gateway(RestApiConstants.V1_PUBLIC_ROUTE_PREFIX + CheckpointSessionController.CHECKPOINT_SESSION_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 // TODO Enable CORS with origins *
 //@CrossOrigin(origins = "*")
 @Tag(name = "checkpoint-session-controller", description = "Checkpoint Session Controller")
 public class CheckpointSessionController {
+    public static final String CHECKPOINT_SESSION_PATH = "/chains/{chainId}";
+
     private final CheckpointSessionService checkpointSessionService;
     private final SessionInfoMapper sessionInfoMapper;
 

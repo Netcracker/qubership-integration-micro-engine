@@ -215,6 +215,14 @@
 
             <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
+                <artifactId>cloud-core-quarkus-bom-publish</artifactId>
+                <version>8.0.3</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>maas-client-quarkus-bom</artifactId>
                 <version>9.0.3</version>
                 <type>pom</type>
@@ -565,6 +573,11 @@
         <dependency>
             <groupId>com.netcracker.cloud.quarkus</groupId>
             <artifactId>blue-green-state-monitor-quarkus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>routes-registrator</artifactId>
         </dependency>
     </dependencies>
 
