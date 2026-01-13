@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
-@IfBuildProperty(name = "m2m.enabled", stringValue = "false")
+@IfBuildProperty(name = "quarkus.consul-source-config.m2m.enabled", stringValue = "false")
 public class ConsulTokenStorage implements TokenStorage {
     @ConfigProperty(name = "consul.token")
     String token;
