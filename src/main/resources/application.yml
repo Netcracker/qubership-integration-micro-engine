@@ -201,17 +201,6 @@ quarkus:
       scope: jakarta.inject.Singleton
       connect-timeout: 300000
       read-timeout: 300000
-    consul:
-      url: ${CONSUL_URL:http://consul:8500}
-      scope: jakarta.inject.Singleton
-      connect-timeout: 25000
-      read-timeout: 25000
-  consul-config:
-    prefix: config/${NAMESPACE}
-    agent:
-      host-port: ${CONSUL_URL:consul:8500}
-      use-https: false
-      token: ${CONSUL_ADMIN_TOKEN}
   consul-source-config:
     agent:
       url: ${CONSUL_URL:consul:8500}
