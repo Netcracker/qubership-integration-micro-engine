@@ -229,6 +229,13 @@
             </dependency>
 
             <dependency>
+                <groupId>com.netcracker.cloud.maas.client</groupId>
+                <artifactId>maas-client-bom</artifactId>
+                <version>11.2.6</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>maas-client-quarkus-bom</artifactId>
                 <version>9.0.3</version>
@@ -586,6 +593,20 @@
         <dependency>
             <groupId>com.netcracker.cloud.quarkus</groupId>
             <artifactId>consul-config-source</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>framework-contexts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>context-propagation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.netcracker.cloud.maas.client</groupId>
+            <artifactId>rabbit-context-propagation</artifactId>
         </dependency>
     </dependencies>
 
