@@ -16,16 +16,18 @@
 
 package org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before;
 
+import com.netcracker.cloud.bluegreen.api.service.BlueGreenStatePublisher;
 import io.micrometer.core.instrument.Tag;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.kafka.DefaultKafkaClientFactory;
-import org.apache.camel.component.kafka.KafkaClientFactory;
 import org.apache.camel.spi.Registry;
 import org.apache.commons.lang3.StringUtils;
-import org.qubership.integration.platform.engine.camel.components.kafka.TaggedMetricsKafkaClientFactory;
+import org.qubership.integration.platform.engine.camel.components.kafka.factory.DefaultKafkaBGClientFactory;
+import org.qubership.integration.platform.engine.camel.components.kafka.factory.KafkaBGClientFactory;
+import org.qubership.integration.platform.engine.camel.components.kafka.factory.TaggedMetricsKafkaBGClientFactory;
 import org.qubership.integration.platform.engine.camel.repository.RegistryHelper;
 import org.qubership.integration.platform.engine.model.ChainElementType;
 import org.qubership.integration.platform.engine.model.ElementOptions;
@@ -43,21 +45,24 @@ import static org.qubership.integration.platform.engine.service.debugger.metrics
 import static org.qubership.integration.platform.engine.service.deployment.processing.actions.create.before.helpers.ChainElementTypeHelper.isServiceCallOrAsyncApiTrigger;
 
 @ApplicationScoped
-@Priority(KafkaElementDependencyBinder.ORDER)
+@Priority(KafkaBlueGreenDependencyBinder.ORDER)
 @OnBeforeRoutesCreated
-public class KafkaElementDependencyBinder extends ElementProcessingAction {
+public class KafkaBlueGreenDependencyBinder extends ElementProcessingAction {
     public static final int ORDER = 0;
 
     private final MetricsStore metricsStore;
     private final MetricTagsHelper metricTagsHelper;
+    private final BlueGreenStatePublisher blueGreenStatePublisher;
 
     @Inject
-    public KafkaElementDependencyBinder(
-        MetricsStore metricsStore,
-        MetricTagsHelper metricTagsHelper
+    public KafkaBlueGreenDependencyBinder(
+            MetricsStore metricsStore,
+            MetricTagsHelper metricTagsHelper,
+            BlueGreenStatePublisher blueGreenStatePublisher
     ) {
         this.metricsStore = metricsStore;
         this.metricTagsHelper = metricTagsHelper;
+        this.blueGreenStatePublisher = blueGreenStatePublisher;
     }
 
     @Override
@@ -65,16 +70,16 @@ public class KafkaElementDependencyBinder extends ElementProcessingAction {
         String elementType = properties.getProperties().get(ChainProperties.ELEMENT_TYPE);
         ChainElementType chainElementType = ChainElementType.fromString(elementType);
         return ChainElementType.isKafkaAsyncElement(chainElementType) && (
-            (!isServiceCallOrAsyncApiTrigger(chainElementType))
-                || ChainProperties.OPERATION_PROTOCOL_TYPE_KAFKA.equals(
-                properties.getProperties().get(ChainProperties.OPERATION_PROTOCOL_TYPE_PROP)));
+                (!isServiceCallOrAsyncApiTrigger(chainElementType))
+                        || ChainProperties.OPERATION_PROTOCOL_TYPE_KAFKA.equals(
+                        properties.getProperties().get(ChainProperties.OPERATION_PROTOCOL_TYPE_PROP)));
     }
 
     @Override
     public void apply(
-        CamelContext context,
-        ElementProperties properties,
-        DeploymentInfo deploymentInfo
+            CamelContext context,
+            ElementProperties properties,
+            DeploymentInfo deploymentInfo
     ) {
         String elementId = properties.getElementId();
         DefaultKafkaClientFactory defaultFactory = new DefaultKafkaClientFactory();
@@ -85,15 +90,16 @@ public class KafkaElementDependencyBinder extends ElementProcessingAction {
             tags.add(Tag.of(MAAS_CLASSIFIER, maasClassifier));
         }
 
-        // For camel 'kafka' and 'kafka-custom' component
-        KafkaClientFactory kafkaClientFactory = metricsStore.isMetricsEnabled()
-            ? new TaggedMetricsKafkaClientFactory(
-            defaultFactory,
-            metricsStore.getMeterRegistry(),
-            tags)
-            : defaultFactory;
+        // For custom 'kafka-custom' component
+        KafkaBGClientFactory kafkaClientFactory = metricsStore.isMetricsEnabled()
+                ? new TaggedMetricsKafkaBGClientFactory(
+                        defaultFactory,
+                        metricsStore.getMeterRegistry(),
+                        tags,
+                        blueGreenStatePublisher
+                )
+                : new DefaultKafkaBGClientFactory(defaultFactory, blueGreenStatePublisher);
         Registry registry = RegistryHelper.getRegistry(context, deploymentInfo.getDeploymentId());
-        registry.bind(elementId, KafkaClientFactory.class, kafkaClientFactory);
-        registry.bind(elementId + "-v2", KafkaClientFactory.class, kafkaClientFactory);
+        registry.bind(elementId + "-v2", KafkaBGClientFactory.class, kafkaClientFactory);
     }
 }
