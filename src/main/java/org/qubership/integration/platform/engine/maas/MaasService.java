@@ -22,7 +22,6 @@ import com.netcracker.cloud.maas.client.api.kafka.TopicAddress;
 import com.netcracker.cloud.maas.client.api.kafka.TopicUserCredentials;
 import com.netcracker.cloud.maas.client.api.rabbit.RabbitMaaSClient;
 import com.netcracker.cloud.maas.client.api.rabbit.VHost;
-import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +51,6 @@ import static org.qubership.integration.platform.engine.model.constants.CamelCon
 
 @Slf4j
 @ApplicationScoped
-@IfBuildProperty(name = "qip.maas.enabled", stringValue = "true")
 public class MaasService {
     private static final String FAILED_TO_RESOLVE_MAAS_PARAMETERS = "Failed to resolve MaaS parameters";
 

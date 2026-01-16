@@ -83,8 +83,6 @@ qip:
       registration:
         enabled: ${apigateway.routes.registration.enabled}
       prefix: /${application.prefix}-routes
-  maas:
-    enabled: ${MAAS_ENABLED:true}
   camel:
     routes-prefix: /routes
     stream-caching:
