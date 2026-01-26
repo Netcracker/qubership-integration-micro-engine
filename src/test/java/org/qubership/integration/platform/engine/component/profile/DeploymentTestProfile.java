@@ -44,6 +44,7 @@ public class DeploymentTestProfile implements QuarkusTestProfile {
             "org.qubership.integration.platform.engine.configuration.opensearch.**",
             "org.qubership.integration.platform.engine.service.debugger.sessions.**",
             "org.qubership.integration.platform.engine.service.debugger.CamelDebugger",
+            "org.qubership.integration.platform.engine.camel.ContextCustomizer",
             "org.qubership.integration.platform.engine.configuration.SessionsMetricsServiceProducer"
 
     );
