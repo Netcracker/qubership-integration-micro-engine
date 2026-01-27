@@ -799,18 +799,6 @@
                 <skipITs>false</skipITs>
                 <quarkus.native.enabled>true</quarkus.native.enabled>
             </properties>
-        </profile>
-        <profile>
-            <id>ci-it</id>
-            <activation>
-                <property>
-                    <name>env.CI</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <properties>
-                <skipITs>false</skipITs>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -820,7 +808,6 @@
                             <includes>
                                 <include>**/*IT.java</include>
                             </includes>
-                            <skipITs>${skipITs}</skipITs>
                             <systemPropertyVariables>
                                 <native.image.path>
                                     ${project.build.directory}/${project.build.finalName}-runner
@@ -833,7 +820,6 @@
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
