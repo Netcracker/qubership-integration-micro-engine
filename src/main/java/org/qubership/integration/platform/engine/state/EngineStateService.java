@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.qubership.integration.platform.engine.consul.ConsulKeyValidator;
 import org.qubership.integration.platform.engine.consul.ConsulSessionService;
 import org.qubership.integration.platform.engine.model.engine.EngineInfo;
 import org.qubership.integration.platform.engine.model.engine.EngineState;
