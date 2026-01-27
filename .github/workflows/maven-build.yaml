@@ -12,6 +12,7 @@ jobs:
     with:
       maven-command: >
         --batch-mode verify
+        -P it-tests
         -Dgpg.skip=true
         -DrunITs=true
         -DskipITs=false
