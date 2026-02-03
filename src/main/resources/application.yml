@@ -52,6 +52,11 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  chains:
+    configuration:
+      location: ${QIP_CHAINS_CONFIGURATION_URL:}
+  libraries:
+    path: ${QIP_LIBRARIES_PATH:/tmp/libraries}
   engine:
     domain: ${CAMEL_K_INTEGRATION:default}
   camel:

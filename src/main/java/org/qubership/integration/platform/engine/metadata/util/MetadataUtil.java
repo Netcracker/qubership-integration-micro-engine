@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Objects.nonNull;
 import static org.qubership.integration.platform.engine.model.ChainElementType.CHECKPOINT;
 
 public class MetadataUtil {
@@ -35,8 +36,27 @@ public class MetadataUtil {
         return exchange.getContext().getRegistry().lookupByNameAndType(getBeanName(cls, elementId), cls);
     }
 
+    private static <T> T getBeanForElement(Route route, String elementId, Class<T> cls) {
+        return route.getCamelContext().getRegistry().lookupByNameAndType(getBeanName(cls, elementId), cls);
+    }
+
     private static <T> Optional<T> getOptionalBeanForElement(Exchange exchange, String elementId, Class<T> cls) {
         return Optional.ofNullable(getBeanForElement(exchange, elementId, cls));
+    }
+
+    private static <T> Optional<T> getOptionalBeanForElement(Route route, String elementId, Class<T> cls) {
+        return Optional.ofNullable(getBeanForElement(route, elementId, cls));
+    }
+
+    public static <T> boolean hasBeanForChain(Route route, Class<T> cls) {
+        String chainId = getChainId(route);
+        return nonNull(getBeanForChain(route, cls));
+    }
+
+    public static <T> void addBeanForChain(Route route, Class<T> cls, T obj) {
+        String chainId = getChainId(route);
+        String beanName = getBeanName(cls, chainId);
+        route.getCamelContext().getRegistry().bind(beanName, obj);
     }
 
     public static String getChainId(Exchange exchange) {
@@ -90,6 +110,10 @@ public class MetadataUtil {
 
     public static Optional<ServiceCallInfo> getServiceCallInfo(Exchange exchange, String elementId) {
         return getOptionalBeanForElement(exchange, elementId, ServiceCallInfo.class);
+    }
+
+    public static Optional<ServiceCallInfo> getServiceCallInfo(Route route, String elementId) {
+        return getOptionalBeanForElement(route, elementId, ServiceCallInfo.class);
     }
 
     public static Collection<RouteRegistrationInfo> getRouteRegistrationInfo(CamelContext context, String chainId) {

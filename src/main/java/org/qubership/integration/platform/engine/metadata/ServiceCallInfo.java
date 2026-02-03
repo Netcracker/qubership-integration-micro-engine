@@ -15,4 +15,5 @@ public class ServiceCallInfo {
     String protocol;
     String externalServiceName;
     String externalServiceEnvironmentName;
+    String specificationId;
 }

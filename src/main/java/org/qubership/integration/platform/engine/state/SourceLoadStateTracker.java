@@ -12,11 +12,14 @@ import org.apache.camel.k.support.PropertiesSupport;
 import org.apache.camel.spi.Resource;
 import org.qubership.integration.platform.engine.camel.dsl.notification.SourceProcessingListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static java.util.Objects.isNull;
 import static org.apache.camel.k.listener.SourcesConfigurer.CAMEL_K_PREFIX;
 import static org.apache.camel.k.listener.SourcesConfigurer.CAMEL_K_SOURCES_PREFIX;
 
@@ -35,14 +38,22 @@ public class SourceLoadStateTracker implements SourceProcessingListener {
     private final ConcurrentMap<String, SourceLoadState> stateMap = new ConcurrentHashMap<>();
 
     @Getter
-    private Collection<SourceDefinition> sourceDefinitions;
+    private final Collection<SourceDefinition> sourceDefinitions;
 
     @Inject
     CamelContext camelContext;
 
+    public SourceLoadStateTracker() {
+        sourceDefinitions = new ArrayList<>();
+    }
+
     @PostConstruct
     public void init() {
-        sourceDefinitions = buildSourceDefinitions();
+        sourceDefinitions.addAll(buildSourceDefinitions());
+    }
+
+    public void addSourceDefinitions(Collection<SourceDefinition> sourceDefinitions) {
+        this.sourceDefinitions.addAll(sourceDefinitions);
     }
 
     public SourceLoadState getLoadState(String id) {
@@ -90,6 +101,7 @@ public class SourceLoadStateTracker implements SourceProcessingListener {
                 sourcesConfigurer,
                 k -> k.startsWith(CAMEL_K_SOURCES_PREFIX),
                 CAMEL_K_PREFIX);
-        return Arrays.asList(sourcesConfigurer.getSources());
+        SourceDefinition[] sourceDefinitions = sourcesConfigurer.getSources();
+        return isNull(sourceDefinitions) ? Collections.emptyList() : Arrays.asList(sourceDefinitions);
     }
 }
