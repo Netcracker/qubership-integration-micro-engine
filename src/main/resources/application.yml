@@ -276,9 +276,11 @@ quarkus:
       enabled: ${TRACING_ENABLED:false}
   scheduler:
     use-composite-scheduler: true
+    start-mode: FORCED
   quartz:
+    instance-name: quartz-scheduler
     clustered: true
-    store-type: jdbc-tx
+    store-type: JDBC_TX
     datasource: quartz
     table-prefix: engine.QRTZ_
     misfire-threshold: 15S

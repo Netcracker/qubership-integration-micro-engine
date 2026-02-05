@@ -18,6 +18,7 @@ package org.qubership.integration.platform.engine.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Consumer;
 import org.apache.camel.Endpoint;
@@ -27,8 +28,7 @@ import org.apache.camel.component.quartz.QuartzEndpoint;
 import org.apache.camel.pollconsumer.quartz.QuartzScheduledPollConsumerScheduler;
 import org.apache.camel.spi.ScheduledPollConsumerScheduler;
 import org.quartz.*;
-import org.qubership.integration.platform.engine.camel.scheduler.StdSchedulerFactoryProxy;
-import org.qubership.integration.platform.engine.camel.scheduler.StdSchedulerProxy;
+import org.qubership.integration.platform.engine.camel.scheduler.SchedulerProxy;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -37,8 +37,13 @@ import java.util.List;
 @Slf4j
 @ApplicationScoped
 public class QuartzSchedulerService {
+    @Getter
+    private final SchedulerProxy schedulerProxy;
+
     @Inject
-    StdSchedulerFactoryProxy schedulerFactoryProxy;
+    public QuartzSchedulerService(Scheduler scheduler) {
+        this.schedulerProxy = new SchedulerProxy(scheduler);
+    }
 
     /**
      * Fix for removing scheduler jobs
@@ -47,7 +52,7 @@ public class QuartzSchedulerService {
         try {
             log.debug("Remove camel scheduler jobs: {}", jobs);
             if (!jobs.isEmpty()) {
-                getFactory().getScheduler().deleteJobs(jobs);
+                schedulerProxy.deleteJobs(jobs);
             }
         } catch (SchedulerException e) {
             log.error("Failed to delete scheduler jobs", e);
@@ -88,8 +93,7 @@ public class QuartzSchedulerService {
     public synchronized void commitScheduledJobs() {
         try {
             log.debug("Commit camel scheduler jobs");
-            StdSchedulerProxy scheduler = (StdSchedulerProxy) getFactory().getScheduler();
-            scheduler.commitScheduledJobs();
+            schedulerProxy.commitScheduledJobs();
         } catch (SchedulerException e) {
             log.error("Failed to commit scheduled jobs", e);
         }
@@ -98,14 +102,9 @@ public class QuartzSchedulerService {
     public synchronized void resetSchedulersProxy() {
         try {
             log.debug("Reset camel scheduler proxy");
-            StdSchedulerProxy scheduler = (StdSchedulerProxy) getFactory().getScheduler();
-            scheduler.clearDelayedJobs();
-        } catch (SchedulerException e) {
+            schedulerProxy.clearDelayedJobs();
+        } catch (Exception e) {
             log.error("Failed to reset scheduler proxy", e);
         }
-    }
-
-    public SchedulerFactory getFactory() {
-        return schedulerFactoryProxy;
     }
 }
