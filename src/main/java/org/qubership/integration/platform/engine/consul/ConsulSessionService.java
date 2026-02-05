@@ -40,7 +40,10 @@ public class ConsulSessionService {
         return sessionId;
     }
 
-    @Scheduled(every = SESSION_RENEW_INTERVAL)
+    @Scheduled(
+            every = SESSION_RENEW_INTERVAL,
+            executeWith = Scheduled.SIMPLE
+    )
     public void createOrRenewSession() {
         doCreateOrRenewSession();
     }

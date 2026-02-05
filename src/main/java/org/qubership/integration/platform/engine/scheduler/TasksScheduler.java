@@ -63,7 +63,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "PT2.5S",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void refreshCommonVariables() {
         variableService.refreshCommonVariables();
@@ -72,7 +73,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "5s",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void refreshSecuredVariables() {
         variableService.refreshSecuredVariables();
@@ -81,7 +83,8 @@ public class TasksScheduler {
     @Scheduled(
             cron = "${qip.sessions.checkpoints.cleanup.cron}",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void cleanupCheckpointSessions() {
         checkpointSessionService.deleteOldRecordsByInterval(checkpointsInterval);
@@ -91,7 +94,8 @@ public class TasksScheduler {
     @Scheduled(
             cron = "${qip.context-service.cleanup.cron}",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void cleanupContextStorage() {
         contextStorageService.deleteOldRecords();
@@ -101,7 +105,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "1s",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void checkRuntimeDeploymentProperties() {
         try {
