@@ -41,6 +41,8 @@ camel:
       CamelJacksonTypeConverterToPojo: true
       inflightRepositoryBrowseEnabled: true
   component:
+    quartz:
+      autowired-enabled: false
     kafka: # new parameters will not be automatically set to 'kafka-custom' element, need to change KafkaCustomComponentConfiguration
       ssl-truststore-location: ${qip.local-truststore.store.path}
       ssl-truststore-password: ${qip.local-truststore.store.password}
@@ -286,6 +288,8 @@ quarkus:
       enabled: true
     trace:
       enabled: ${TRACING_ENABLED:false}
+  scheduler:
+    use-composite-scheduler: true
   quartz:
     clustered: true
     store-type: jdbc-tx
