@@ -1,13 +1,13 @@
 package org.qubership.integration.platform.engine.camel.processors.context.propagation;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.http.HttpHeaders;
 import org.qubership.integration.platform.engine.camel.context.propagation.CamelExchangeContextPropagation;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ import static org.qubership.integration.platform.engine.model.constants.CamelCon
 public class ContextRestoreProcessor implements Processor {
     private final CamelExchangeContextPropagation camelExchangeContextPropagation;
 
-    @Autowired
+    @Inject
     public ContextRestoreProcessor(CamelExchangeContextPropagation camelExchangeContextPropagation) {
         this.camelExchangeContextPropagation = camelExchangeContextPropagation;
     }

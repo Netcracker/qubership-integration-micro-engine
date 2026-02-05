@@ -213,17 +213,10 @@
                 <version>${groovy.xml.version}</version>
             </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>com.netcracker.cloud.quarkus</groupId>-->
-<!--                <artifactId>cloud-core-quarkus-bom</artifactId>-->
-<!--                <version>8.0.3</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>cloud-core-quarkus-bom-publish</artifactId>
-                <version>8.0.3</version>
+                <version>8.2.1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -611,6 +604,19 @@
         <dependency>
             <groupId>com.netcracker.cloud.maas.client</groupId>
             <artifactId>kafka-blue-green-consumer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>dbaas-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>dbaas-opensearch-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.netcracker.cloud.quarkus</groupId>
+            <artifactId>dbaas-datasource-postgresql</artifactId>
         </dependency>
     </dependencies>
 

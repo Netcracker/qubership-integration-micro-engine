@@ -2,6 +2,7 @@ cloud:
   microservice:
     name: ${MICROSERVICE_NAME:qip-engine}
     namespace: ${NAMESPACE:local}
+    bg_version: ""
 
 tenant:
   default:
@@ -31,7 +32,6 @@ security:
 
 consul:
   url: ${CONSUL_URL:http://consul:8500}
-  token: ${CONSUL_ADMIN_TOKEN}
   keys:
     prefix: config/${NAMESPACE}
     engine-config-root: /${application.prefix}-engine-configurations
@@ -185,9 +185,9 @@ quarkus:
   application:
     name: ${application.name}
   log:
-    level: INFO
+    level: ${ROOT_LOG_LEVEL:INFO}
     console:
-      level: INFO
+      level: ${ROOT_LOG_LEVEL:INFO}
       format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-7p] [request_id=%-15X{requestId}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId}] [spanId=%-16X{X-B3-SpanId}] [method=%-30.30M]  - %m%n"
       filter: camel-job-filter
     category:
@@ -213,54 +213,6 @@ quarkus:
       url: ${CONSUL_URL:consul:8500}
     m2m:
       enabled: ${m2m.enabled}
-  datasource:
-    checkpoints:
-      db-kind: postgresql
-      active: true
-      username: ${POSTGRES_USER:postgres}
-      password: ${POSTGRES_PASSWORD:postgres}
-      jdbc:
-        driver: org.postgresql.Driver
-        url: jdbc:postgresql://${POSTGRES_URL:postgres:5432}/engine_checkpoints_db?reWriteBatchedInserts=true
-        min-size: ${PG_MIN_IDLE:0}
-        max-size: ${PG_MAX_POOL_SIZE:30}
-        idle-removal-interval: ${PG_IDLE_TIMEOUT:5M}
-        leak-detection-interval: ${PG_LEAK_DETECTION_INTERVAL:30000}
-    quartz:
-      db-kind: postgresql
-      active: true
-      username: ${POSTGRES_USER:postgres}
-      password: ${POSTGRES_PASSWORD:postgres}
-      jdbc:
-        driver: org.postgresql.Driver
-        url: jdbc:postgresql://${POSTGRES_URL:postgres:5432}/engine_qrtz_db
-        min-size: ${PG_MIN_IDLE:0}
-        max-size: ${PG_MAX_POOL_SIZE:30}
-        idle-removal-interval: ${PG_IDLE_TIMEOUT:5M}
-        leak-detection-interval: ${PG_LEAK_DETECTION_INTERVAL:30000}
-  flyway:
-    enabled: true
-    checkpoints:
-      schemas: engine
-      default-schema: engine
-      locations: 'classpath:db/migration/postgresql/static'
-      baseline-on-migrate: true
-      create-schemas: true
-      out-of-order: true
-      ignore-migration-patterns: '*:future,*:missing'
-      validate-on-migrate: true
-      active: true
-      migrate-at-start: true
-    quartz:
-      schemas: engine
-      default-schema: engine
-      locations: 'classpath:db/migration/postgresql/configs'
-      baseline-on-migrate: true
-      create-schemas: true
-      out-of-order: true
-      ignore-migration-patterns: '*:future,*:missing'
-      active: true
-      migrate-at-start: true
   hibernate-orm:
     checkpoints:
       datasource: checkpoints
@@ -279,8 +231,8 @@ quarkus:
         "hibernate.order_updates": true
         "hibernate.jdbc.lob.non_contextual_creation": true
         "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
-    quartz:
-      datasource: quartz
+    configs:
+      datasource: configs
       dialect: org.hibernate.dialect.PostgreSQLDialect
       packages: org.qubership.integration.platform.engine.persistence.configs.entity
       physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
@@ -311,7 +263,8 @@ quarkus:
   quartz:
     clustered: true
     store-type: jdbc-tx
-    datasource: quartz
+    deferred-datasource-name: configs
+    defer-datasource-check: true
     table-prefix: engine.QRTZ_
     misfire-threshold: 15S
     thread-count: 10

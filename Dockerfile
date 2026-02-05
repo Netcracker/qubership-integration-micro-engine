@@ -1,12 +1,14 @@
 FROM maven:3.9.11-amazoncorretto-21-alpine AS build
 
+ARG QUARKUS_BUILD_PROFILES=prod,dbaas
+
 WORKDIR /app
 COPY lib ./lib
 COPY pom.xml .
 RUN mvn clean
-RUN mvn -B dependency:go-offline
+RUN mvn -B dependency:go-offline -Dquarkus.profile=${QUARKUS_BUILD_PROFILES}
 COPY src ./src
-RUN mvn package -B -Dgpg.skip
+RUN mvn -B package -Dquarkus.profile=${QUARKUS_BUILD_PROFILES} -Dgpg.skip -DskipITs -Dmaven.test.skip=true
 
 FROM alpine/java:21-jdk
 

@@ -3,17 +3,12 @@ package org.qubership.integration.platform.engine.persistence.shared.repository;
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.qubership.integration.platform.engine.persistence.shared.entity.IdempotencyRecord;
 
 @ApplicationScoped
+@PersistenceUnit("checkpoints")
 public class IdempotencyRecordRepository implements PanacheRepositoryBase<IdempotencyRecord, String> {
-    @Inject
-    @PersistenceUnit("checkpoints")
-    EntityManager em;
-
     public boolean existsByKeyAndNotExpired(String key) {
         String sql = """
             select
@@ -24,7 +19,7 @@ public class IdempotencyRecordRepository implements PanacheRepositoryBase<Idempo
                 r.key = :key
                 and r.expires_at >= now()
         """;
-        Query query = em.createNativeQuery(sql);
+        Query query = getEntityManager().createNativeQuery(sql);
         query.setParameter("key", key);
         Object result = query.getSingleResult();
         if (result instanceof Boolean b) {
@@ -57,7 +52,7 @@ public class IdempotencyRecordRepository implements PanacheRepositoryBase<Idempo
                     where
                         r.expires_at < now()
         """;
-        Query query = em.createNativeQuery(sql, IdempotencyRecord.class);
+        Query query = getEntityManager().createNativeQuery(sql, IdempotencyRecord.class);
         query.setParameter("key", key);
         query.setParameter("data", data);
         query.setParameter("ttl", ttl);
@@ -68,7 +63,7 @@ public class IdempotencyRecordRepository implements PanacheRepositoryBase<Idempo
         String sql = """
             delete from engine.idempotency_records r where r.expires_at < now()
         """;
-        Query query = em.createNativeQuery(sql, IdempotencyRecord.class);
+        Query query = getEntityManager().createNativeQuery(sql, IdempotencyRecord.class);
         return query.executeUpdate();
     }
 
@@ -80,7 +75,7 @@ public class IdempotencyRecordRepository implements PanacheRepositoryBase<Idempo
                     r.key = :key
                     and r.expires_at >= now()
         """;
-        Query query = em.createNativeQuery(sql, IdempotencyRecord.class);
+        Query query = getEntityManager().createNativeQuery(sql, IdempotencyRecord.class);
         query.setParameter("key", key);
         return query.executeUpdate();
     }

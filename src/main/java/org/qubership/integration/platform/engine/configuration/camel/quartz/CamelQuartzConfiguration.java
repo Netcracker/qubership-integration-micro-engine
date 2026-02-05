@@ -38,26 +38,26 @@ public class CamelQuartzConfiguration {
     @Inject
     EngineInfo engineInfo;
 
-    @ConfigProperty(name = "quarkus.datasource.quartz.jdbc.driver")
+    @ConfigProperty(name = "quarkus.datasource.configs.jdbc.driver")
     String driver;
 
-    @ConfigProperty(name = "quarkus.datasource.quartz.jdbc.url")
+    @ConfigProperty(name = "quarkus.datasource.configs.jdbc.url")
     String jdbcUrl;
 
-    @ConfigProperty(name = "quarkus.datasource.quartz.username")
+    @ConfigProperty(name = "quarkus.datasource.configs.username")
     String username;
 
-    @ConfigProperty(name = "quarkus.datasource.quartz.password")
+    @ConfigProperty(name = "quarkus.datasource.configs.password")
     String password;
 
-    @ConfigProperty(name = "quarkus.hibernate-orm.quartz.database.default-schema")
+    @ConfigProperty(name = "quarkus.hibernate-orm.configs.database.default-schema")
     String schema;
 
     @ConfigProperty(name = "qip.camel.component.quartz.thread-pool-count")
     String threadPoolCount;
 
     // TODO [migration to quarkus]
-    public static final String DATASOURCE_NAME = "quartz";
+    public static final String DATASOURCE_NAME = "configs";
 
     @Produces
     @Named("schedulerFactoryProxy")
