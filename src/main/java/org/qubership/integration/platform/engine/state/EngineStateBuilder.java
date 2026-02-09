@@ -76,8 +76,9 @@ public class EngineStateBuilder {
                         // Assuming that source name is a corresponding chain name.
                         .name(sourceDefinition.getName())
                         .build());
+        String deploymentId = String.format("%s-%s", engineInfo.getDomain(), chainInfo.getDeploymentId());
         return DeploymentInfo.builder()
-                .deploymentId(chainInfo.getDeploymentId())
+                .deploymentId(deploymentId)
                 .chainId(chainInfo.getId())
                 .chainName(chainInfo.getName())
                 .snapshotId(chainInfo.getSnapshotId())
