@@ -3,6 +3,7 @@ package org.qubership.integration.platform.engine.configuration;
 import jakarta.enterprise.inject.Produces;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.qubership.integration.platform.engine.model.engine.DomainType;
 import org.qubership.integration.platform.engine.model.engine.EngineInfo;
 
 import java.net.InetAddress;
@@ -17,6 +18,7 @@ public class EngineInfoProducer {
     public EngineInfo getEngineInfo(ApplicationConfiguration applicationConfiguration) {
         return EngineInfo.builder()
                 .domain(domain)
+                .domainType(DomainType.MICRO)
                 .engineDeploymentName(applicationConfiguration.getDeploymentName())
                 .host(getCurrentHost())
                 .build();

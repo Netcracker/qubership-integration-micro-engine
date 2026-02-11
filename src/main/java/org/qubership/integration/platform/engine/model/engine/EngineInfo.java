@@ -26,5 +26,6 @@ import lombok.*;
 public class EngineInfo {
     private String host;
     private String domain;
+    private DomainType domainType;
     private String engineDeploymentName;
 }
