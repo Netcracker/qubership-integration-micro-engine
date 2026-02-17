@@ -355,9 +355,9 @@ public class ChainLogger {
 
         if (nodeId != null) {
             nodeId = DebuggerUtils.getNodeIdFormatted(nodeId);
-            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
-            elementId = elementInfo.getId();
-            elementName = elementInfo.getName();
+            Optional<ElementInfo> elementInfo = MetadataUtil.lookupBeanForElement(exchange, nodeId, ElementInfo.class);
+            elementId = elementInfo.map(ElementInfo::getId).orElse(null);
+            elementName = elementInfo.map(ElementInfo::getName).orElse(null);
         }
 
         updateMDCProperty(ChainProperties.CHAIN_ID, chainId);

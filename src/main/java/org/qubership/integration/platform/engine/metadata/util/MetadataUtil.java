@@ -10,8 +10,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Objects.nonNull;
-
 public class MetadataUtil {
     private MetadataUtil() {
     }
@@ -43,7 +41,7 @@ public class MetadataUtil {
     }
 
     public static <T> boolean hasBean(Route route, Class<T> cls) {
-        return nonNull(getBean(route, cls));
+        return lookupBean(route, cls).isPresent();
     }
 
     public static <T> void addBean(Route route, Class<T> cls, T obj) {

@@ -250,7 +250,7 @@ public class SessionsService {
 
         SessionElementElastic sessionElement = SessionElementElastic.builder()
             .id(sessionElementId)
-            .chainElementId(nodeId)
+            .chainElementId(elementInfo.getId())
             .elementName(elementInfo.getName())
             .camelElementName(elementInfo.getType())
             .actualElementChainId(elementInfo.getChainId())
