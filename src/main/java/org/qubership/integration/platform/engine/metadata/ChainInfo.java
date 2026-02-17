@@ -12,17 +12,4 @@ import lombok.NoArgsConstructor;
 public class ChainInfo {
     private String id;
     private String name;
-    private String version;
-
-    public String getDeploymentId() {
-        return id;
-    }
-
-    public String getSnapshotId() {
-        return version;
-    }
-
-    public String getSnapshotName() {
-        return version;
-    }
 }

@@ -40,7 +40,7 @@ public class RoutesConfigurer extends AbstractPhaseListener {
             log.info("Loading integration chains configuration from {}", location);
             IntegrationChainsConfiguration integrationChainsConfiguration = loadConfiguration(location, runtime);
             loadLibraries(integrationChainsConfiguration.getLibraries(), runtime);
-            loadChains(integrationChainsConfiguration.getChains(), runtime);
+            loadSources(integrationChainsConfiguration.getSources(), runtime);
         } catch (Exception exception) {
             log.error("Failed to load integration chains configuration.", exception);
             throw new RuntimeException(exception);
@@ -58,13 +58,13 @@ public class RoutesConfigurer extends AbstractPhaseListener {
         }
     }
 
-    private void loadChains(List<SourceDefinition> chains, Runtime runtime) {
-        if (chains.isEmpty()) {
-            log.warn("Integration chain list is empty");
+    private void loadSources(List<SourceDefinition> sources, Runtime runtime) {
+        if (sources.isEmpty()) {
+            log.warn("Integration chain sources list is empty");
             return;
         }
-        getSourceLoadStateTracker().addSourceDefinitions(chains);
-        SourcesSupport.loadSources(runtime, chains.toArray(new SourceDefinition[0]));
+        getSourceLoadStateTracker().addSourceDefinitions(sources);
+        SourcesSupport.loadSources(runtime, sources.toArray(new SourceDefinition[0]));
     }
 
     private IntegrationChainsConfiguration loadConfiguration(String location, Runtime runtime) throws IOException {

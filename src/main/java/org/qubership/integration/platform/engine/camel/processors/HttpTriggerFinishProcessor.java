@@ -25,6 +25,7 @@ import org.apache.camel.MessageHistory;
 import org.apache.camel.NamedNode;
 import org.apache.camel.Processor;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants;
@@ -64,7 +65,7 @@ public class HttpTriggerFinishProcessor implements Processor {
 
     private void logMetrics(Exchange exchange, Exception exception) {
         try {
-            ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+            ChainInfo chainInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class).getChain();
             int responseCode = PayloadExtractor.getServletResponseCode(exchange, exception);
             metricsService.processHttpResponseCode(chainInfo, String.valueOf(responseCode));
             metricsService.processHttpTriggerPayloadSize(exchange);

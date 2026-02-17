@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.configuration.TracingConfiguration;
 import org.qubership.integration.platform.engine.logging.ContextHeaders;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties;
@@ -68,7 +69,7 @@ public class TracingService {
     public void addChainTracingTags(Exchange exchange) {
         Map<String, String> customTags = new HashMap<>();
         customTags.put(ChainProperties.SESSION_ID, ExchangeUtil.getSessionId(exchange));
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+        ChainInfo chainInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class).getChain();
         customTags.put(ChainProperties.CHAIN_ID, chainInfo.getId());
         customTags.put(ChainProperties.CHAIN_NAME, chainInfo.getName());
         setXRequestTag(customTags);

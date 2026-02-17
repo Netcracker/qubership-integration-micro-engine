@@ -6,16 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ElementInfo {
+@Builder
+public class DeploymentInfo {
     private String id;
     private String name;
-    private String type;
-    private String chainId;
-    private String snapshotId;
-    private String parentId;
-    private String reuseId;
-    private boolean hasIntermediateParents;
+    private Long timestamp;
+    private ChainInfo chain;
+    private SnapshotInfo snapshot;
 }

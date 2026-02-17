@@ -32,6 +32,7 @@ import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCo
 import org.qubership.integration.platform.engine.logging.ExtendedErrorLogger;
 import org.qubership.integration.platform.engine.logging.ExtendedErrorLoggerFactory;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.ServiceCallInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
@@ -127,8 +128,8 @@ public class ChainLogger {
             return;
         }
 
-        Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
-        ChainElementType type = ChainElementType.fromString(elementInfo.map(ElementInfo::getType).orElse(""));
+        ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
+        ChainElementType type = ChainElementType.fromString(elementInfo.getType());
         LoggedPayloadValues loggedPayloadValues = getLoggedPayloadValues(payload, runtimeProperties);
 
         switch (type) {
@@ -171,8 +172,8 @@ public class ChainLogger {
     ) {
         boolean failedOperation = DebuggerUtils.isFailedOperation(exchange);
         if (runtimeProperties.getLogLoggingLevel().isInfoLevel() || failedOperation) {
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
-            ChainElementType type = ChainElementType.fromString(elementInfo.map(ElementInfo::getType).orElse(""));
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
+            ChainElementType type = ChainElementType.fromString(elementInfo.getType());
             LoggedPayloadValues loggedPayloadValues = getLoggedPayloadValues(payload, runtimeProperties);
 
             switch (type) {
@@ -303,7 +304,7 @@ public class ChainLogger {
         String requestUrl = (String) exchange.getProperty(Properties.SERVLET_REQUEST_URL);
 
         Optional.ofNullable(nodeId)
-                .flatMap(id -> MetadataUtil.getElementInfo(exchange, id))
+                .map(id -> MetadataUtil.getBeanForElement(exchange, id, ElementInfo.class))
                 .ifPresent(info -> {
                     updateMDCProperty(CamelConstants.ChainProperties.ELEMENT_ID, info.getId());
                     updateMDCProperty(CamelConstants.ChainProperties.ELEMENT_NAME, info.getName());
@@ -345,7 +346,7 @@ public class ChainLogger {
         @Nullable String nodeId,
         boolean tracingEnabled
     ) {
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+        ChainInfo chainInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class).getChain();
         String chainId = chainInfo.getId();
         String chainName = chainInfo.getName();
         String sessionId = ExchangeUtil.getSessionId(exchange);
@@ -354,9 +355,9 @@ public class ChainLogger {
 
         if (nodeId != null) {
             nodeId = DebuggerUtils.getNodeIdFormatted(nodeId);
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
-            elementId = elementInfo.map(ElementInfo::getId).orElse(null);
-            elementName = elementInfo.map(ElementInfo::getName).orElse(null);
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
+            elementId = elementInfo.getId();
+            elementName = elementInfo.getName();
         }
 
         updateMDCProperty(ChainProperties.CHAIN_ID, chainId);
@@ -483,14 +484,12 @@ public class ChainLogger {
             int iteration = Integer.parseInt(String.valueOf(exchange.getProperties().getOrDefault(iteratorPropertyName, 0)));
             String enableProperty = IdentifierUtils.getServiceCallRetryPropertyName(elementId);
             boolean enable = Boolean.parseBoolean(String.valueOf(exchange.getProperties().getOrDefault(enableProperty, "false")));
-            Optional<ServiceCallInfo> serviceCallInfo = MetadataUtil.getServiceCallInfo(exchange, elementId);
-            int retryCount = serviceCallInfo
-                    .map(ServiceCallInfo::getRetryCount)
+            ServiceCallInfo serviceCallInfo = MetadataUtil.getBeanForElement(exchange, elementId, ServiceCallInfo.class);
+            int retryCount = Optional.ofNullable(serviceCallInfo.getRetryCount())
                     .map(variablesService::injectVariables)
                     .map(Integer::parseInt)
                     .orElse(0);
-            int retryDelay = serviceCallInfo
-                    .map(ServiceCallInfo::getRetryDelay)
+            int retryDelay = Optional.ofNullable(serviceCallInfo.getRetryDelay())
                     .map(variablesService::injectVariables)
                     .map(Integer::parseInt)
                     .orElse(SERVICE_CALL_DEFAULT_RETRY_DELAY);

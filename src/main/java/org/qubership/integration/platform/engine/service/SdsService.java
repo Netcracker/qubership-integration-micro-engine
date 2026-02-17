@@ -16,13 +16,13 @@
 
 package org.qubership.integration.platform.engine.service;
 
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 
 public interface SdsService {
-    void removeSchedulerJobs(ChainInfo chainInfo);
+    void removeSchedulerJobs(DeploymentInfo deploymentInfo);
 
-    void registerSchedulerJobs(ChainInfo chainInfo, ElementInfo elementInfo);
+    void registerSchedulerJobs(DeploymentInfo deploymentInfo, ElementInfo elementInfo);
 
     void setJobInstanceFinished(String jobExecutionId);
 

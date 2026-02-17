@@ -30,7 +30,9 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.qubership.integration.platform.engine.camel.context.propagation.CamelExchangeContextPropagation;
 import org.qubership.integration.platform.engine.errorhandling.ChainExecutionTimeoutException;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
+import org.qubership.integration.platform.engine.metadata.MaskedFields;
 import org.qubership.integration.platform.engine.metadata.ServiceCallInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainElementType;
@@ -68,6 +70,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.qubership.integration.platform.engine.model.ChainElementType.CHECKPOINT;
 
 @Slf4j
 @ApplicationScoped
@@ -120,16 +123,9 @@ public class CamelDebugger extends DefaultDebugger {
         String stepId = DebuggerUtils.getNodeIdFormatted(id);
         String stepName = DebuggerUtils.getStepNameFormatted(id);
         String elementId = DebuggerUtils.getStepChainElementId(id);
-        ElementInfo elementInfo = MetadataUtil.getElementInfo(exchange, elementId)
-                .orElse(ElementInfo.builder()
-                        .id("")
-                        .type("")
-                        .name("")
-                        .parentId("")
-                        .reuseId("")
-                        .build());
+        ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, elementId, ElementInfo.class);
         return ChainExecutionContext.builder()
-                .chainInfo(MetadataUtil.getChainInfo(exchange))
+                .deploymentInfo(MetadataUtil.getBean(exchange, DeploymentInfo.class))
                 .chainRuntimeProperties(chainRuntimePropertiesService.getRuntimeProperties(exchange))
                 .stepId(stepId)
                 .stepName(stepName)
@@ -182,19 +178,19 @@ public class CamelDebugger extends DefaultDebugger {
         if (CamelConstants.CUSTOM_STEP_ID_PATTERN.matcher(nodeId).matches()) {
             String stepName = DebuggerUtils.getStepNameFormatted(nodeId);
             String elementId = DebuggerUtils.getStepChainElementId(nodeId);
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, elementId);
-            ChainElementType elementType = ChainElementType.fromString(elementInfo.map(ElementInfo::getType).orElse(""));
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, elementId, ElementInfo.class);
+            ChainElementType elementType = ChainElementType.fromString(elementInfo.getType());
             logBeforeStepStarted(exchange, stepName, elementId, elementType);
             handleElementBeforeProcess(exchange, elementId, elementType);
         }
 
         if (IdentifierUtils.isValidUUID(nodeId)) {
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
             if (tracingService.isTracingEnabled()) {
-                elementInfo.ifPresent(info -> tracingService.addElementTracingTags(exchange, info));
+                tracingService.addElementTracingTags(exchange, elementInfo);
             }
 
-            ChainElementType chainElementType = ChainElementType.fromString(elementInfo.map(ElementInfo::getType).orElse(""));
+            ChainElementType chainElementType = ChainElementType.fromString(elementInfo.getType());
 
             boolean isElementForSessionsLevel = ChainElementType.isElementForInfoSessionsLevel(
                     chainElementType);
@@ -277,14 +273,13 @@ public class CamelDebugger extends DefaultDebugger {
                 Boolean.class);
 
         if (IdentifierUtils.isValidUUID(nodeId)) {
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
-            ChainElementType chainElementType = ChainElementType.fromString(
-                    elementInfo.map(ElementInfo::getType).orElse(""));
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
+            ChainElementType chainElementType = ChainElementType.fromString(elementInfo.getType());
 
             boolean isElementForSessionsLevel = ChainElementType.isElementForInfoSessionsLevel(
                     chainElementType);
 
-            elementInfo.ifPresent(info -> setFailedElementId(exchange, info));
+            setFailedElementId(exchange, elementInfo);
             Payload payload = payloadExtractor.extractPayload(exchange);
             switch (actualSessionLevel) {
                 case INFO:
@@ -334,7 +329,7 @@ public class CamelDebugger extends DefaultDebugger {
         ExchangeUtil.putToExchangeMap(sessionId, exchange);
 
         // Propagate masked fields if not already present
-        Set<String> maskedFields = MetadataUtil.getMaskedFields(exchange);
+        Set<String> maskedFields = MetadataUtil.getBean(exchange, MaskedFields.class);
         MaskedFieldUtils.addMaskedFields(exchange, maskedFields);
 
         if (tracingService.isTracingEnabled()) {
@@ -356,7 +351,7 @@ public class CamelDebugger extends DefaultDebugger {
         Session session = sessionsService.startSession(exchange, parentSessionId);
         ExchangeUtil.setSessionProperties(exchange, session, sessionsService.sessionShouldBeLogged());
 
-        if (MetadataUtil.chainHasCheckpointElements(exchange)) {
+        if (chainHasCheckpointElements(exchange)) {
             checkpointSessionService.saveSession(new SessionInfo(session));
         }
 
@@ -371,6 +366,11 @@ public class CamelDebugger extends DefaultDebugger {
         }
         exchange.setProperty(CamelConstants.Properties.THREAD_SESSION_STATUSES, new HashMap<Long, ExecutionStatus>());
         return session;
+    }
+
+    private boolean chainHasCheckpointElements(Exchange exchange) {
+        return MetadataUtil.getElementsInfo(exchange)
+                .anyMatch(elementInfo -> CHECKPOINT.getText().equals(elementInfo.getType()));
     }
 
     private void exchangeFinished(Exchange exchange) {
@@ -465,7 +465,7 @@ public class CamelDebugger extends DefaultDebugger {
         if (
                 !failed
                 && executionContext.getChainRuntimeProperties().isDptEventsEnabled()
-                && executionContext.getElementType().equals(ChainElementType.CHECKPOINT)
+                && executionContext.getElementType().equals(CHECKPOINT)
                 && !exchange.getProperty(CamelConstants.Properties.CHECKPOINT_IS_TRIGGER_STEP, false, Boolean.class)
                 && sessionsKafkaReportingService.isPresent()
         ) {
@@ -491,10 +491,12 @@ public class CamelDebugger extends DefaultDebugger {
                 if (CamelNames.REQUEST_ATTEMPT_STEP_PREFIX.equals(stepName)) {
                     chainLogger.logRequestAttempt(exchange, elementId);
                 } else if (CamelNames.REQUEST_PREFIX.equals(stepName)) {
-                    Optional<ServiceCallInfo> serviceCallInfo = MetadataUtil.getServiceCallInfo(exchange, elementId);
-                    chainLogger.logRequest(exchange,
-                            serviceCallInfo.map(ServiceCallInfo::getExternalServiceName).orElse(null),
-                            serviceCallInfo.map(ServiceCallInfo::getExternalServiceEnvironmentName).orElse(null));
+                    ServiceCallInfo serviceCallInfo = MetadataUtil.getBeanForElement(exchange, elementId, ServiceCallInfo.class);
+                    chainLogger.logRequest(
+                            exchange,
+                            serviceCallInfo.getExternalServiceName(),
+                            serviceCallInfo.getExternalServiceEnvironmentName()
+                    );
                 }
                 break;
             default:
@@ -505,11 +507,11 @@ public class CamelDebugger extends DefaultDebugger {
     private void handleElementBeforeProcess(Exchange exchange, String elementId, ChainElementType elementType) {
         switch (elementType) {
             case SERVICE_CALL:
-                Optional<ServiceCallInfo> serviceCallInfo = MetadataUtil.getServiceCallInfo(exchange, elementId);
+                ServiceCallInfo serviceCallInfo = MetadataUtil.getBeanForElement(exchange, elementId, ServiceCallInfo.class);
                 exchange.setProperty(ChainProperties.EXTERNAL_SERVICE_NAME_PROP,
-                        serviceCallInfo.map(ServiceCallInfo::getExternalServiceName).orElse(null));
+                        serviceCallInfo.getExternalServiceName());
                 exchange.setProperty(ChainProperties.EXTERNAL_SERVICE_ENV_NAME_PROP,
-                        serviceCallInfo.map(ServiceCallInfo::getExternalServiceEnvironmentName).orElse(null));
+                        serviceCallInfo.getExternalServiceEnvironmentName());
                 break;
             default:
                 break;

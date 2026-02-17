@@ -8,7 +8,7 @@ import org.apache.camel.spi.CamelEvent;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
 import org.qubership.integration.platform.engine.camel.listeners.helpers.SdsSchedulerJobsRegistrationHelper;
 import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteRemoved;
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.service.SdsService;
 
@@ -25,8 +25,8 @@ public class RemoveSdsSchedulerJobsAction implements EventProcessingAction<Camel
 
     @Override
     public void process(CamelEvent.RouteRemovedEvent event) throws Exception {
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(event.getRoute());
-        sdsService.removeSchedulerJobs(chainInfo);
-        sdsSchedulerJobsRegistrationHelper.markUnregistered(chainInfo);
+        DeploymentInfo deploymentInfo = MetadataUtil.getBean(event.getRoute(), DeploymentInfo.class);
+        sdsService.removeSchedulerJobs(deploymentInfo);
+        sdsSchedulerJobsRegistrationHelper.markUnregistered(deploymentInfo);
     }
 }

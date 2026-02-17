@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IntegrationChainsConfiguration {
-    private List<SourceDefinition> chains = Collections.emptyList();
+    private List<SourceDefinition> sources = Collections.emptyList();
     private List<LibraryDefinition> libraries = Collections.emptyList();
 }

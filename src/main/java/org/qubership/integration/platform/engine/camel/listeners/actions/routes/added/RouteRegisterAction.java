@@ -9,7 +9,7 @@ import org.apache.camel.Route;
 import org.apache.camel.spi.CamelEvent;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
 import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteAdded;
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.service.RouteRegistrationService;
@@ -36,16 +36,19 @@ public class RouteRegisterAction implements EventProcessingAction<CamelEvent.Rou
     @Override
     public void process(CamelEvent.RouteAddedEvent event) throws Exception {
         Route route = event.getRoute();
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(route);
-        if (registeredRouteChainIds.add(chainInfo.getId())) {
+        DeploymentInfo deploymentInfo = MetadataUtil.getBean(route, DeploymentInfo.class);
+        if (registeredRouteChainIds.add(deploymentInfo.getId())) {
             routeRegistrationService.ifPresentOrElse(
                     svc -> {
                         Collection<RouteRegistrationInfo> routeRegistrationInfos =
-                                MetadataUtil.getRouteRegistrationInfo(route.getCamelContext(), chainInfo.getId());
+                                MetadataUtil.getRouteRegistrationInfo(
+                                        route.getCamelContext(),
+                                        deploymentInfo.getSnapshot().getId()
+                                );
                         svc.registerRoutes(routeRegistrationInfos);
                     },
-                    () -> log.warn("Route registration on Control Plane for chain '{}' ({}) is skipped due to application configuration.",
-                            chainInfo.getName(), chainInfo.getId())
+                    () -> log.warn("Route registration on Control Plane for deployment '{}' ({}) is skipped due to application configuration.",
+                            deploymentInfo.getName(), deploymentInfo.getId())
             );
         }
     }

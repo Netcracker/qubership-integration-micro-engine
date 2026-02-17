@@ -6,6 +6,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.k.SourceDefinition;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.SnapshotInfo;
 import org.qubership.integration.platform.engine.model.engine.DeploymentInfo;
 import org.qubership.integration.platform.engine.model.engine.DeploymentStatus;
 import org.qubership.integration.platform.engine.model.engine.EngineDeployment;
@@ -63,26 +64,30 @@ public class EngineStateBuilder {
             SourceDefinition sourceDefinition,
             SourceLoadStateTracker.SourceLoadState sourceLoadState
     ) {
-        // Assuming that source ID is a corresponding chain ID.
-        String chainId = sourceDefinition.getId();
-        ChainInfo chainInfo = camelContext.getRegistry()
-                .findByType(ChainInfo.class)
+        // Assuming that source ID is a corresponding snapshot ID.
+        String snapshotId = sourceDefinition.getId();
+        org.qubership.integration.platform.engine.metadata.DeploymentInfo deploymentInfo = camelContext.getRegistry()
+                .findByType(org.qubership.integration.platform.engine.metadata.DeploymentInfo.class)
                 .stream()
-                // Assuming that source ID is a corresponding chain ID.
-                .filter(info -> chainId.equals(info.getId()))
+                // Assuming that source ID is a corresponding snapshot ID.
+                .filter(info -> snapshotId.equals(info.getSnapshot().getId()))
                 .findAny()
-                .orElse(ChainInfo.builder()
-                        .id(chainId)
-                        // Assuming that source name is a corresponding chain name.
-                        .name(sourceDefinition.getName())
+                .orElse(org.qubership.integration.platform.engine.metadata.DeploymentInfo.builder()
+                        .id(String.format("%s-%s", engineInfo.getDomain(), snapshotId))
+                        .chain(ChainInfo.builder()
+                                // Assuming that source name is a corresponding chain name.
+                                .name(sourceDefinition.getName())
+                                .build())
+                        .snapshot(SnapshotInfo.builder()
+                                .id(snapshotId)
+                                .build())
                         .build());
-        String deploymentId = String.format("%s-%s", engineInfo.getDomain(), chainInfo.getDeploymentId());
         return DeploymentInfo.builder()
-                .deploymentId(deploymentId)
-                .chainId(chainInfo.getId())
-                .chainName(chainInfo.getName())
-                .snapshotId(chainInfo.getSnapshotId())
-                .snapshotName(chainInfo.getSnapshotName())
+                .deploymentId(deploymentInfo.getId())
+                .chainId(deploymentInfo.getChain().getId())
+                .chainName(deploymentInfo.getChain().getName())
+                .snapshotId(deploymentInfo.getSnapshot().getId())
+                .snapshotName(deploymentInfo.getSnapshot().getName())
                 .chainStatusCode(
                         SourceLoadStateTracker.SourceLoadStage.FAILED
                                 .equals(sourceLoadState.stage())

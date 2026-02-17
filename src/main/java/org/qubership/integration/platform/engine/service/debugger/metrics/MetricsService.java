@@ -59,8 +59,8 @@ public class MetricsService {
         try {
             DistributionSummary distributionSummary;
 
-            String chainId = chainExecutionContext.getChainInfo().getId();
-            String chainName = chainExecutionContext.getChainInfo().getName();
+            String chainId = chainExecutionContext.getDeploymentInfo().getChain().getId();
+            String chainName = chainExecutionContext.getDeploymentInfo().getChain().getName();
             String elementId = chainExecutionContext.getElementInfo().getId();
             String elementName = chainExecutionContext.getElementInfo().getName();
             String elementType = chainExecutionContext.getElementInfo().getType();
@@ -79,8 +79,7 @@ public class MetricsService {
                     distributionSummary.record(calculatePayloadSize(exchange));
                     break;
                 case SERVICE_CALL:
-                    if (MetadataUtil.getServiceCallInfo(exchange, elementId)
-                            .map(this::metricNeedsToBeRecorded).orElse(false)) {
+                    if (metricNeedsToBeRecorded(exchange, elementId)) {
                         distributionSummary = metricsStore.processHttpPayloadSize(
                                 true, chainId, chainName, elementId, elementName, elementType);
                         distributionSummary.record(calculatePayloadSize(exchange));
@@ -104,14 +103,15 @@ public class MetricsService {
         try {
             DistributionSummary distributionSummary;
 
-            String chainId = chainExecutionContext.getChainInfo().getId();
-            String chainName = chainExecutionContext.getChainInfo().getName();
+            String chainId = chainExecutionContext.getDeploymentInfo().getChain().getId();
+            String chainName = chainExecutionContext.getDeploymentInfo().getChain().getName();
             String elementId = chainExecutionContext.getElementInfo().getId();
             String elementName = chainExecutionContext.getElementInfo().getName();
             String elementType = chainExecutionContext.getElementInfo().getType();
 
             String parentId = chainExecutionContext.getElementInfo().getParentId();
-            String parentName = MetadataUtil.getElementInfo(exchange, elementId)
+            String parentName = Optional.ofNullable(parentId)
+                    .map(id -> MetadataUtil.getBeanForElement(exchange, id, ElementInfo.class))
                     .map(ElementInfo::getName)
                     .orElse("");
 
@@ -150,8 +150,7 @@ public class MetricsService {
                     distributionSummary.record(calculatePayloadSize(exchange));
                     break;
                 case SERVICE_CALL:
-                    if (MetadataUtil.getServiceCallInfo(exchange, elementId)
-                            .map(this::metricNeedsToBeRecorded).orElse(false)) {
+                    if (metricNeedsToBeRecorded(exchange, elementId)) {
                         distributionSummary = metricsStore.processHttpPayloadSize(
                                 false, chainId, chainName, elementId, elementName, elementType);
                         distributionSummary.record(calculatePayloadSize(exchange));
@@ -163,6 +162,11 @@ public class MetricsService {
         } catch (Exception e) {
             log.warn("Failed to create metrics data", e);
         }
+    }
+
+    private boolean metricNeedsToBeRecorded(Exchange exchange, String elementId) {
+        ServiceCallInfo serviceCallInfo = MetadataUtil.getBeanForElement(exchange, elementId, ServiceCallInfo.class);
+        return metricNeedsToBeRecorded(serviceCallInfo);
     }
 
     private boolean metricNeedsToBeRecorded(ServiceCallInfo serviceCallInfo) {
@@ -194,17 +198,18 @@ public class MetricsService {
 
     public void processHttpTriggerPayloadSize(Exchange exchange) {
         if (metricsStore.isMetricsEnabled()) {
-            ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+            org.qubership.integration.platform.engine.metadata.DeploymentInfo deploymentInfo =
+                    MetadataUtil.getBean(exchange, org.qubership.integration.platform.engine.metadata.DeploymentInfo.class);
             String id = exchange.getProperty(Properties.HTTP_TRIGGER_STEP_ID).toString();
-            Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, id);
-            String elementId = elementInfo.map(ElementInfo::getId).orElse("");
-            String elementType = elementInfo.map(ElementInfo::getType).orElse("");
-            String elementName = elementInfo.map(ElementInfo::getName).orElse("");
+            ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, id, ElementInfo.class);
+            String elementId = elementInfo.getId();
+            String elementType = elementInfo.getType();
+            String elementName = elementInfo.getName();
 
             DistributionSummary distributionSummary = metricsStore.processHttpPayloadSize(
                     false,
-                    chainInfo.getId(),
-                    chainInfo.getName(),
+                    deploymentInfo.getChain().getId(),
+                    deploymentInfo.getChain().getName(),
                     elementId,
                     elementName,
                     elementType);

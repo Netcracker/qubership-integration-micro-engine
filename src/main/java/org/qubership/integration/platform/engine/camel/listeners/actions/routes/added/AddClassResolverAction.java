@@ -9,12 +9,12 @@ import org.apache.camel.spi.ClassResolver;
 import org.qubership.integration.platform.engine.camel.QipCustomClassResolver;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
 import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteAdded;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ServiceCallInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.service.ExternalLibraryService;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.qubership.integration.platform.engine.model.constants.CamelConstants.ChainProperties.SERVICE_CALL_ELEMENT;
 
@@ -28,25 +28,23 @@ public class AddClassResolverAction implements EventProcessingAction<CamelEvent.
     @Override
     public void process(CamelEvent.RouteAddedEvent event) throws Exception {
         Route route = event.getRoute();
-        if (MetadataUtil.hasBeanForChain(route, ClassResolver.class)) {
+        if (MetadataUtil.hasBean(route, ClassResolver.class)) {
             return;
         }
-        String chainId = MetadataUtil.getChainId(route);
+        String chainId = MetadataUtil.getBean(route, DeploymentInfo.class).getChain().getId();
         log.debug("Adding class resolver for chain {} to the Camel context", chainId);
 
         Collection<String> specificationIds = getSpecificationIds(route);
         ClassLoader classLoader = externalLibraryService.getClassLoaderForSpecifications(
                 specificationIds, route.getCamelContext().getApplicationContextClassLoader());
         ClassResolver classResolver = new QipCustomClassResolver(classLoader);
-        MetadataUtil.addBeanForChain(route, ClassResolver.class, classResolver);
+        MetadataUtil.addBean(route, ClassResolver.class, classResolver);
     }
 
     private Collection<String> getSpecificationIds(Route route) {
-        return MetadataUtil.getChainElementsInfo(route)
+        return MetadataUtil.getElementsInfo(route)
                 .filter(info -> SERVICE_CALL_ELEMENT.equals(info.getType()))
-                .map(info -> MetadataUtil.getServiceCallInfo(route, info.getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(info -> MetadataUtil.getBeanForElement(route, info.getId(), ServiceCallInfo.class))
                 .map(ServiceCallInfo::getSpecificationId)
                 .toList();
     }

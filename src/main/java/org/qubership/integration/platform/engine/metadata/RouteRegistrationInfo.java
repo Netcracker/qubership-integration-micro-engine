@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class RouteRegistrationInfo {
-    private String chainId;
+    private String snapshotId;
 
     private String path;
     @Nullable

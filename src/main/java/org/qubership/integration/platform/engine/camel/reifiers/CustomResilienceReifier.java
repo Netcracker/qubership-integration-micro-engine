@@ -27,6 +27,7 @@ import org.apache.camel.Route;
 import org.apache.camel.component.resilience4j.ResilienceProcessor;
 import org.apache.camel.component.resilience4j.ResilienceReifier;
 import org.apache.camel.model.CircuitBreakerDefinition;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.logging.LogLoggingLevel;
@@ -128,7 +129,7 @@ public class CustomResilienceReifier extends ResilienceReifier {
     private static LogLoggingLevel getLoggingLevel(ResilienceProcessor processor) {
         CamelContext camelContext = processor.getCamelContext();
         Route route = camelContext.getRoute(processor.getRouteId());
-        String chainId = MetadataUtil.getChainId(route);
+        String chainId = MetadataUtil.getBean(route, DeploymentInfo.class).getChain().getId();
         return Optional.ofNullable(camelContext.getRegistry()
                 .findSingleByType(ChainRuntimePropertiesService.class))
                 .map(chainRuntimePropertiesService -> chainRuntimePropertiesService.getActualProperties(chainId))

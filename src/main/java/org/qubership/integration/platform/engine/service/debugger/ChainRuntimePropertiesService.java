@@ -20,6 +20,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.qubership.integration.platform.engine.consul.ConsulConstants;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
@@ -42,7 +43,9 @@ public class ChainRuntimePropertiesService {
                 Properties.CHAIN_RUNTIME_PROPERTIES_PROP, ChainRuntimeProperties.class);
 
         if (isNull(runtimeProperties)) {
-            runtimeProperties = getActualProperties(MetadataUtil.getChainId(exchange));
+            DeploymentInfo deploymentInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class);
+            String chainId = deploymentInfo.getChain().getId();
+            runtimeProperties = getActualProperties(chainId);
             exchange.setProperty(Properties.CHAIN_RUNTIME_PROPERTIES_PROP, runtimeProperties);
         }
 

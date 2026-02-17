@@ -10,8 +10,8 @@ public class RouteRegistrationInfoBuilder {
         delegate = RouteRegistrationInfo.builder();
     }
 
-    public RouteRegistrationInfoBuilder chainId(String chainId) {
-        delegate.chainId(chainId);
+    public RouteRegistrationInfoBuilder snapshotId(String snapshotId) {
+        delegate.snapshotId(snapshotId);
         return this;
     }
 

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+// TODO Check that it is not used and remove if so.
 @ApplicationScoped
 @Slf4j
 public class PerDeploymentBeanRepository implements BeanRepository {

@@ -9,13 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ElementInfo {
+public class SnapshotInfo {
     private String id;
     private String name;
-    private String type;
-    private String chainId;
-    private String snapshotId;
-    private String parentId;
-    private String reuseId;
-    private boolean hasIntermediateParents;
 }

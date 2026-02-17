@@ -2,7 +2,7 @@ package org.qubership.integration.platform.engine.camel.listeners.helpers;
 
 import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 
 import java.util.Collections;
@@ -17,16 +17,17 @@ public class SdsSchedulerJobsRegistrationHelper {
     // chain ID -> [element ID]
     private final Map<String, Set<String>> registeredJobs = new ConcurrentHashMap<>();
 
-    public boolean registered(ChainInfo chainInfo) {
-        return registeredJobs.containsKey(chainInfo.getId());
+    public boolean registered(DeploymentInfo deploymentInfo) {
+        return registeredJobs.containsKey(deploymentInfo.getChain().getId());
     }
 
-    public boolean registered(ChainInfo chainInfo, ElementInfo elementInfo) {
-        return registeredJobs.getOrDefault(chainInfo.getId(), Collections.emptySet()).contains(elementInfo.getId());
+    public boolean registered(DeploymentInfo deploymentInfo, ElementInfo elementInfo) {
+        return registeredJobs.getOrDefault(deploymentInfo.getChain().getId(), Collections.emptySet())
+                .contains(elementInfo.getId());
     }
 
-    public void markRegistered(ChainInfo chainInfo, ElementInfo elementInfo) {
-        registeredJobs.compute(chainInfo.getId(), (key, value) -> {
+    public void markRegistered(DeploymentInfo deploymentInfo, ElementInfo elementInfo) {
+        registeredJobs.compute(deploymentInfo.getChain().getId(), (key, value) -> {
             if (value == null) {
                 return Collections.singleton(elementInfo.getId());
             } else {
@@ -37,7 +38,7 @@ public class SdsSchedulerJobsRegistrationHelper {
         });
     }
 
-    public void markUnregistered(ChainInfo chainInfo) {
-        registeredJobs.remove(chainInfo.getId());
+    public void markUnregistered(DeploymentInfo deploymentInfo) {
+        registeredJobs.remove(deploymentInfo.getId());
     }
 }

@@ -76,8 +76,7 @@ public class GrpcProcessorUtils {
     }
 
     private static ClassResolver getClassResolver(Exchange exchange) {
-        // FIXME
-        return MetadataUtil.getClassResolver(exchange);
+        return MetadataUtil.getBean(exchange, ClassResolver.class);
     }
 
     private static CamelContext createContextProxyWithClassResolver(

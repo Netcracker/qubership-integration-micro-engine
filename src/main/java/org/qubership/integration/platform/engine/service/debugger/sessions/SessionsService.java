@@ -24,8 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jetbrains.annotations.NotNull;
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
-import org.qubership.integration.platform.engine.metadata.ElementInfo;
+import org.qubership.integration.platform.engine.metadata.*;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainElementType;
 import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
@@ -80,7 +79,9 @@ public class SessionsService {
         LocalDateTime startTime = LocalDateTime.now();
         Long startedMillis = System.currentTimeMillis();
 
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+        DeploymentInfo deploymentInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class);
+        ChainInfo chainInfo = deploymentInfo.getChain();
+        SnapshotInfo snapshotInfo = deploymentInfo.getSnapshot();
         ChainRuntimeProperties runtimeProperties = chainRuntimePropertiesService.getRuntimeProperties(exchange);
         SessionsLoggingLevel sessionLevel = runtimeProperties.calculateSessionLevel(exchange);
         Session session = Session.builder()
@@ -94,7 +95,7 @@ public class SessionsService {
             .started(startTime.toString())
             .executionStatus(ExecutionStatus.IN_PROGRESS)
             .loggingLevel(sessionLevel.toString())
-            .snapshotName(chainInfo.getSnapshotName())
+            .snapshotName(snapshotInfo.getName())
             .parentSessionId(parentSessionId)
             .build();
 
@@ -203,7 +204,7 @@ public class SessionsService {
         updateSessionInfoForElements(exchange, sessionElement);
 
         if (stepName.equals(elementInfo.getId())) {
-            MetadataUtil.getWireTapInfo(exchange, stepName).ifPresentOrElse(
+            MetadataUtil.lookupBeanForElement(exchange, stepName, WireTapInfo.class).ifPresentOrElse(
                     wireTapInfo -> {
                         for (String id : wireTapInfo.getParentIds()) {
                             if (((Map<String, String>) exchange.getProperty(Properties.ELEMENT_EXECUTION_MAP))
@@ -244,15 +245,15 @@ public class SessionsService {
             String nodeId,
             Payload payload
     ) {
-        Optional<ElementInfo> elementInfo = MetadataUtil.getElementInfo(exchange, nodeId);
-        String parentElementId = extractParentId(exchange, sessionId, elementInfo.orElse(ElementInfo.builder().build()));
+        ElementInfo elementInfo = MetadataUtil.getBeanForElement(exchange, nodeId, ElementInfo.class);
+        String parentElementId = extractParentId(exchange, sessionId, elementInfo);
 
         SessionElementElastic sessionElement = SessionElementElastic.builder()
             .id(sessionElementId)
             .chainElementId(nodeId)
-            .elementName(elementInfo.map(ElementInfo::getName).orElse(""))
-            .camelElementName(elementInfo.map(ElementInfo::getType).orElse(""))
-            .actualElementChainId(elementInfo.map(ElementInfo::getChainId).orElse(null))
+            .elementName(elementInfo.getName())
+            .camelElementName(elementInfo.getType())
+            .actualElementChainId(elementInfo.getChainId())
             .sessionId(sessionId)
             .parentElementId(
                 SessionsLoggingLevel.ERROR == chainRuntimePropertiesService.getRuntimeProperties(exchange)
@@ -267,7 +268,7 @@ public class SessionsService {
 
         updateSessionInfoForElements(exchange, sessionElement);
 
-        MetadataUtil.getWireTapInfo(exchange, nodeId).ifPresent(wireTapInfo -> {
+        MetadataUtil.lookupBeanForElement(exchange, nodeId, WireTapInfo.class).ifPresent(wireTapInfo -> {
             for (String id : wireTapInfo.getParentIds()) {
                 if (((Map<String, String>) exchange.getProperty(Properties.ELEMENT_EXECUTION_MAP)).containsKey(id)) {
                     sessionElement.setParentElementId(((Map<String, String>) exchange.getProperty(

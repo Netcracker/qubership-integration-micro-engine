@@ -8,7 +8,7 @@ import org.apache.camel.spi.CamelEvent;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
 import org.qubership.integration.platform.engine.camel.listeners.helpers.SdsSchedulerJobsRegistrationHelper;
 import org.qubership.integration.platform.engine.camel.listeners.qualifiers.OnRouteAdded;
-import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.ElementInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainElementType;
@@ -27,12 +27,12 @@ public class RegisterSdsSchedulerJobsAction implements EventProcessingAction<Cam
 
     @Override
     public void process(CamelEvent.RouteAddedEvent event) throws Exception {
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(event.getRoute());
-        MetadataUtil.getChainElementsInfo(event.getRoute())
+        DeploymentInfo deploymentInfo = MetadataUtil.getBean(event.getRoute(), DeploymentInfo.class);
+        MetadataUtil.getElementsInfo(event.getRoute())
                 .filter(RegisterSdsSchedulerJobsAction::isSdsTrigger)
                 .forEach(elementInfo -> {
-                    sdsService.registerSchedulerJobs(chainInfo, elementInfo);
-                    sdsSchedulerJobsRegistrationHelper.markRegistered(chainInfo, elementInfo);
+                    sdsService.registerSchedulerJobs(deploymentInfo, elementInfo);
+                    sdsSchedulerJobsRegistrationHelper.markRegistered(deploymentInfo, elementInfo);
                 });
     }
 

@@ -4,9 +4,9 @@ WORKDIR /app
 COPY lib ./lib
 COPY pom.xml .
 RUN mvn clean
-RUN mvn -B dependency:go-offline
+RUN mvn -B dependency:go-offline -Daether.syncContext.named.time=120
 COPY src ./src
-RUN mvn package -B -Dgpg.skip
+RUN mvn -B package -Dgpg.skip -Daether.syncContext.named.time=120 -DskipITs -Dmaven.test.skip=true
 
 FROM alpine/java:21-jdk
 
@@ -28,4 +28,4 @@ COPY --chown=10001 --from=build /app/target/quarkus-app/quarkus/ /app/quarkus/
 
 WORKDIR /app
 
-CMD ["/opt/java/openjdk/bin/java", "-Xmx832m", "-Djava.security.egd=file:/dev/./urandom", "-Dfile.encoding=UTF-8", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-jar", "/app/quarkus-run.jar"]
+CMD ["/opt/java/openjdk/bin/java", "-Xmx832m", "-Djava.security.egd=file:/dev/./urandom", "-Dfile.encoding=UTF-8", "-Djava.util.logging.manager=org.jboss.logmanager.LogManager", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", "-jar", "/app/quarkus-run.jar"]

@@ -26,6 +26,7 @@ import org.apache.camel.Processor;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
 import org.qubership.integration.platform.engine.metadata.ChainInfo;
+import org.qubership.integration.platform.engine.metadata.DeploymentInfo;
 import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants;
@@ -85,7 +86,7 @@ public class ChainFinishProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        ChainInfo chainInfo = MetadataUtil.getChainInfo(exchange);
+        ChainInfo chainInfo = MetadataUtil.getBean(exchange, DeploymentInfo.class).getChain();
 
         AtomicInteger sessionActiveThreadCounter = exchange.getProperty(
             Properties.SESSION_ACTIVE_THREAD_COUNTER, null, AtomicInteger.class);
