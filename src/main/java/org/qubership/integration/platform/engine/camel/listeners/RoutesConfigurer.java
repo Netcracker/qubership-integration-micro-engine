@@ -40,7 +40,13 @@ public class RoutesConfigurer extends AbstractPhaseListener {
             log.info("Loading integration chains configuration from {}", location);
             IntegrationChainsConfiguration integrationChainsConfiguration = loadConfiguration(location, runtime);
             loadLibraries(integrationChainsConfiguration.getLibraries(), runtime);
-            loadSources(integrationChainsConfiguration.getSources(), runtime);
+            loadSources(
+                    integrationChainsConfiguration.getSources()
+                            .stream()
+                            .map(SourceDefinition.class::cast)
+                            .toList(),
+                    runtime
+            );
         } catch (Exception exception) {
             log.error("Failed to load integration chains configuration.", exception);
             throw new RuntimeException(exception);
