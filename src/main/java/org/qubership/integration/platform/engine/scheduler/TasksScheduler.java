@@ -90,7 +90,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "PT2.5S",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void refreshCommonVariables() {
         try {
@@ -109,7 +110,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "5s",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void refreshSecuredVariables() {
         variableService.refreshSecuredVariables();
@@ -118,7 +120,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "${qip.deployments.retry-delay}",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void retryProcessingDeploys() {
         if (deploymentReadinessService.isInitialized()) {
@@ -129,7 +132,8 @@ public class TasksScheduler {
     @Scheduled(
             cron = "${qip.sessions.checkpoints.cleanup.cron}",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void cleanupCheckpointSessions() {
         checkpointSessionService.deleteOldRecordsByInterval(checkpointsInterval);
@@ -139,7 +143,8 @@ public class TasksScheduler {
     @Scheduled(
             cron = "${qip.context-service.cleanup.cron}",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void cleanupContextStorage() {
         contextStorageService.deleteOldRecords();
@@ -149,7 +154,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "PT2.5S",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void checkDeploymentUpdates() {
         if (!deploymentReadinessService.isReadyForDeploy()) {
@@ -181,7 +187,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "PT2.5S",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void checkLibrariesUpdates() {
         InjectUtil.injectOptional(externalLibraryService).ifPresent(libraryService -> {
@@ -198,7 +205,8 @@ public class TasksScheduler {
     @Scheduled(
             every = "1s",
             concurrentExecution = Scheduled.ConcurrentExecution.SKIP,
-            skipExecutionIf = Scheduled.ApplicationNotRunning.class
+            skipExecutionIf = Scheduled.ApplicationNotRunning.class,
+            executeWith = Scheduled.SIMPLE
     )
     public void checkRuntimeDeploymentProperties() {
         try {

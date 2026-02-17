@@ -20,7 +20,7 @@ import static java.util.Objects.isNull;
 @Slf4j
 @ApplicationScoped
 public class EngineStateService {
-    private static final String LOCALDEV_NODE_ID = "-" + UUID.randomUUID();
+    private static final String LOCALDEV_NODE_ID = UUID.randomUUID().toString();
 
     @ConfigProperty(name = "consul.keys.prefix")
     String keyPrefix;
@@ -44,6 +44,9 @@ public class EngineStateService {
     EngineInfo engineInfo;
 
     @Inject
+    ConsulKeyValidator consulKeyValidator;
+
+    @Inject
     @Identifier("jsonMapper")
     ObjectMapper objectMapper;
 
@@ -59,10 +62,11 @@ public class EngineStateService {
 
     private String getConsulKey() {
         return keyPrefix + keyEngineConfigRoot + keyEnginesState
-                + "/" + engineInfo.getEngineDeploymentName()
-                + "-" + engineInfo.getDomain()
-                + "-" + engineInfo.getHost()
-                + (dynamicStateKeys ? LOCALDEV_NODE_ID : "");
+                + "/" + consulKeyValidator.makeKeyValid(
+                        engineInfo.getEngineDeploymentName()
+                            + "-" + engineInfo.getDomain()
+                            + "-" + engineInfo.getHost()
+                            + (dynamicStateKeys ? "-" + LOCALDEV_NODE_ID : ""));
     }
 
     private void createOrUpdateKVWithSession(String key, EngineState state, String sessionId) {
