@@ -6,4 +6,4 @@ maas:
     enabled: true
 
 consul:
-  token: ${CONSUL_ADMIN_TOKEN}
+  token: ${CONSUL_ADMIN_TOKEN:}

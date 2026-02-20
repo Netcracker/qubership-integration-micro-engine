@@ -212,7 +212,7 @@ quarkus:
       scope: jakarta.inject.Singleton
   consul-source-config:
     agent:
-      url: ${CONSUL_URL:consul:8500}
+      url: ${CONSUL_URL:http://consul:8500}
     m2m:
       enabled: ${m2m.enabled}
   hibernate-orm:
