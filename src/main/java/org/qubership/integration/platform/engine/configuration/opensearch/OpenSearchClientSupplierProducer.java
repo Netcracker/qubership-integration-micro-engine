@@ -16,11 +16,14 @@
 
 package org.qubership.integration.platform.engine.configuration.opensearch;
 
+import com.netcracker.cloud.dbaas.client.opensearch.DbaasOpensearchClient;
 import io.quarkus.arc.DefaultBean;
+import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.Credentials;
@@ -31,6 +34,8 @@ import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.qubership.integration.platform.engine.opensearch.DefaultOpenSearchClientSupplier;
 import org.qubership.integration.platform.engine.opensearch.OpenSearchClientSupplier;
+
+import static com.netcracker.cloud.quarkus.dbaas.opensearch.client.DbaasOpensearchConfiguration.TENANT_NATIVE_OPENSEARCH_CLIENT;
 
 @Slf4j
 @ApplicationScoped
@@ -69,5 +74,25 @@ public class OpenSearchClientSupplierProducer {
             .setHttpClientConfigCallback(httpClientBuilder ->
                 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         return new OpenSearchClient(builder.build());
+    }
+
+    @Produces
+    @ApplicationScoped
+    @IfBuildProfile("dbaas")
+    public OpenSearchClientSupplier dbaasOpenSearchClientSupplier(
+            @Named(TENANT_NATIVE_OPENSEARCH_CLIENT)
+            DbaasOpensearchClient tenantClient
+    ) {
+        return new OpenSearchClientSupplier() {
+            @Override
+            public OpenSearchClient getClient() {
+                return tenantClient.getClient();
+            }
+
+            @Override
+            public String normalize(String name) {
+                return tenantClient.normalize(name);
+            }
+        };
     }
 }
