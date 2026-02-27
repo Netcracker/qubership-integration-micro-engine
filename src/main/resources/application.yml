@@ -216,40 +216,21 @@ quarkus:
     m2m:
       enabled: ${m2m.enabled}
   hibernate-orm:
-    checkpoints:
-      datasource: checkpoints
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      packages: org.qubership.integration.platform.engine.persistence.shared.entity
-      physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
-      database:
-        generation:
-          create-schemas: false
-        default-schema: engine
-      jdbc:
-        timezone: UTC
-        statement-batch-size: 30
-      unsupported-properties:
-        "hibernate.order_inserts": true
-        "hibernate.order_updates": true
-        "hibernate.jdbc.lob.non_contextual_creation": true
-        "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
-    configs:
-      datasource: configs
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      packages: org.qubership.integration.platform.engine.persistence.configs.entity
-      physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
-      database:
-        generation:
-          create-schemas: false
-        default-schema: engine
-      jdbc:
-        timezone: UTC
-        statement-batch-size: 30
-      unsupported-properties:
-        "hibernate.order_inserts": true
-        "hibernate.order_updates": true
-        "hibernate.jdbc.lob.non_contextual_creation": true
-        "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    packages: org.qubership.integration.platform.engine.persistence.shared.entity
+    physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
+    database:
+      generation:
+        create-schemas: false
+      default-schema: engine
+    jdbc:
+      timezone: UTC
+      statement-batch-size: 30
+    unsupported-properties:
+      "hibernate.order_inserts": true
+      "hibernate.order_updates": true
+      "hibernate.jdbc.lob.non_contextual_creation": true
+      "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
   smallrye-openapi:
     enable: true
   camel:
@@ -265,15 +246,6 @@ quarkus:
   scheduler:
     use-composite-scheduler: true
     start-mode: FORCED
-  quartz:
-    instance-name: quartz-scheduler
-    clustered: true
-    store-type: JDBC_TX
-    deferred-datasource-name: configs
-    defer-datasource-check: true
-    table-prefix: engine.QRTZ_
-    misfire-threshold: 15S
-    thread-count: 10
   otel:
     propagators: b3multi
     service:

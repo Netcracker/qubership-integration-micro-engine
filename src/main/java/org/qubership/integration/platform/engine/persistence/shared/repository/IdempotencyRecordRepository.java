@@ -1,13 +1,11 @@
 package org.qubership.integration.platform.engine.persistence.shared.repository;
 
-import io.quarkus.hibernate.orm.PersistenceUnit;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.Query;
 import org.qubership.integration.platform.engine.persistence.shared.entity.IdempotencyRecord;
 
 @ApplicationScoped
-@PersistenceUnit("checkpoints")
 public class IdempotencyRecordRepository implements PanacheRepositoryBase<IdempotencyRecord, String> {
     public boolean existsByKeyAndNotExpired(String key) {
         String sql = """

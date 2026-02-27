@@ -16,7 +16,6 @@
 
 package org.qubership.integration.platform.engine.persistence.shared.repository;
 
-import io.quarkus.hibernate.orm.PersistenceUnit;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
@@ -29,7 +28,6 @@ import java.util.List;
 
 
 @ApplicationScoped
-@PersistenceUnit("checkpoints")
 public class CheckpointRepository implements PanacheRepositoryBase<Checkpoint, String> {
     public Checkpoint findFirstBySessionIdAndSessionChainIdAndCheckpointElementId(
             String sessionId,
