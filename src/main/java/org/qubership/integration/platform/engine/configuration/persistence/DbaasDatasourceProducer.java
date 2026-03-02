@@ -32,6 +32,9 @@ public class DbaasDatasourceProducer {
                         .withProperty("namespace", namespace)
                         .withProperty("microserviceName", microserviceName)
                         .withCustomKey("logicalDbName", "configs"),
+                        .withProperty(NAMESPACE, namespace)
+                        .withProperty(MICROSERVICE_NAME, microserviceName)
+                        .withCustomKey(LOGICAL_DB_NAME, "configs"),
                 dataSourceCreationService
         );
     }
