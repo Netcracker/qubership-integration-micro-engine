@@ -19,7 +19,6 @@ package org.qubership.integration.platform.engine.configuration.opensearch;
 import com.netcracker.cloud.dbaas.client.opensearch.DbaasOpensearchClient;
 import io.quarkus.arc.DefaultBean;
 import io.quarkus.arc.profile.IfBuildProfile;
-import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -46,7 +45,6 @@ public class OpenSearchClientSupplierProducer {
     @Produces
     @DefaultBean
     @ApplicationScoped
-    @Startup
     public OpenSearchClientSupplier openSearchClientSupplier(
             OpenSearchInitializer openSearchInitializer
     ) {
@@ -81,9 +79,10 @@ public class OpenSearchClientSupplierProducer {
     @IfBuildProfile("dbaas")
     public OpenSearchClientSupplier dbaasOpenSearchClientSupplier(
             @Named(TENANT_NATIVE_OPENSEARCH_CLIENT)
-            DbaasOpensearchClient tenantClient
+            DbaasOpensearchClient tenantClient,
+            OpenSearchInitializer openSearchInitializer
     ) {
-        return new OpenSearchClientSupplier() {
+        OpenSearchClientSupplier clientSupplier = new OpenSearchClientSupplier() {
             @Override
             public OpenSearchClient getClient() {
                 return tenantClient.getClient();
@@ -94,5 +93,7 @@ public class OpenSearchClientSupplierProducer {
                 return tenantClient.normalize(name);
             }
         };
+        openSearchInitializer.initialize(clientSupplier);
+        return clientSupplier;
     }
 }
