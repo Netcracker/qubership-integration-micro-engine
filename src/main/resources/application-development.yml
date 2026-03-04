@@ -1,4 +1,8 @@
 qip:
+  pubsub:
+    emulator:
+      enabled: true
+      address: pubsub:8085
   local-truststore:
     store:
       path: /app/truststore/defaulttruststore.jks
