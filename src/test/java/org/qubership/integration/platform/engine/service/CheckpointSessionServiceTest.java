@@ -51,9 +51,10 @@ class CheckpointSessionServiceTest {
             SessionInfoRepository sessionInfoRepository,
             CheckpointRepository checkpointRepository,
             CheckpointRestService checkpointRestService,
-            ObjectMapper mapper
+            ObjectMapper mapper,
+            IdempotencyRecordService idempotencyRecordService
     ) {
-        return new CheckpointSessionService(sessionInfoRepository, checkpointRepository, checkpointRestService, mapper);
+        return new CheckpointSessionService(sessionInfoRepository, checkpointRepository, checkpointRestService, mapper, idempotencyRecordService);
     }
 
     @Test
@@ -61,8 +62,9 @@ class CheckpointSessionServiceTest {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
         CheckpointRestService rest = mock(CheckpointRestService.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class), idempotencyRecordService);
 
         when(checkpointRepo.findAllBySessionChainIdAndSessionId(anyString(), anyString(), any(Page.class), any(Sort.class)))
                 .thenReturn(List.of());
@@ -79,11 +81,12 @@ class CheckpointSessionServiceTest {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
         CheckpointRestService rest = mock(CheckpointRestService.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
         Uni<Buffer> uni = mock(Uni.class, RETURNS_DEEP_STUBS);
         when(rest.retryCheckpoint(anyString(), anyString(), anyString(), anyMap(), any())).thenReturn(uni);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         when(session.getChainId()).thenReturn("chain");
@@ -120,6 +123,7 @@ class CheckpointSessionServiceTest {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
         CheckpointRestService rest = mock(CheckpointRestService.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
         @SuppressWarnings("unchecked")
         Uni<Buffer> uni = mock(Uni.class, RETURNS_DEEP_STUBS);
@@ -130,7 +134,7 @@ class CheckpointSessionServiceTest {
                 org.mockito.ArgumentMatchers.any()
         )).thenReturn(uni);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         when(session.getChainId()).thenReturn("chain");
@@ -163,8 +167,9 @@ class CheckpointSessionServiceTest {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
         CheckpointRestService rest = mock(CheckpointRestService.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class), idempotencyRecordService);
 
         when(checkpointRepo.findFirstBySessionIdAndSessionChainIdAndCheckpointElementId(anyString(), anyString(), anyString()))
                 .thenReturn(null);
@@ -181,11 +186,12 @@ class CheckpointSessionServiceTest {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
         CheckpointRestService rest = mock(CheckpointRestService.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
         Uni<Buffer> uni = mock(Uni.class, RETURNS_DEEP_STUBS);
         when(rest.retryCheckpoint(anyString(), anyString(), anyString(), anyMap(), any())).thenReturn(uni);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, rest, mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         when(session.getChainId()).thenReturn("chain");
@@ -218,8 +224,9 @@ class CheckpointSessionServiceTest {
     void shouldReturnNullWhenFindLastCheckpointAndRepositoryReturnsNullOrEmpty() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         when(checkpointRepo.findAllBySessionChainIdAndSessionId(anyString(), anyString(), any(Page.class), any(Sort.class)))
                 .thenReturn(null);
@@ -236,8 +243,9 @@ class CheckpointSessionServiceTest {
     void shouldReturnFirstWhenFindLastCheckpointAndRepositoryReturnsList() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         Checkpoint c1 = mock(Checkpoint.class);
         Checkpoint c2 = mock(Checkpoint.class);
@@ -252,8 +260,9 @@ class CheckpointSessionServiceTest {
     void shouldDelegateFindAllFailedChainSessionsInfo() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         List<SessionInfo> list = List.of(mock(SessionInfo.class));
         when(sessionRepo.findAllByChainIdAndExecutionStatus("c", ExecutionStatus.COMPLETED_WITH_ERRORS)).thenReturn(list);
@@ -265,8 +274,9 @@ class CheckpointSessionServiceTest {
     void shouldPersistAndReturnSameSessionWhenSaveSession() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         SessionInfo out = svc.saveSession(session);
@@ -279,8 +289,9 @@ class CheckpointSessionServiceTest {
     void shouldThrowEntityNotFoundWhenSaveAndAssignCheckpointAndSessionMissing() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         when(sessionRepo.findByIdOptional("s")).thenReturn(Optional.empty());
 
@@ -293,8 +304,9 @@ class CheckpointSessionServiceTest {
     void shouldAssignCheckpointToSessionWhenSaveAndAssignCheckpointAndSessionExists() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         when(sessionRepo.findByIdOptional("s")).thenReturn(Optional.of(session));
@@ -316,8 +328,9 @@ class CheckpointSessionServiceTest {
     void shouldUpdateParentWhenBothSessionsExist() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         SessionInfo session = mock(SessionInfo.class);
         SessionInfo parent = mock(SessionInfo.class);
@@ -334,8 +347,9 @@ class CheckpointSessionServiceTest {
     void shouldThrowEntityNotFoundWhenUpdateParentAndAnySessionMissing() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         when(sessionRepo.findByIdOptional("s")).thenReturn(Optional.empty());
 
@@ -346,8 +360,9 @@ class CheckpointSessionServiceTest {
     void shouldDeleteRootSessionByIdWhenRemoveAllRelatedCheckpointsAndIsRoot() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         svc.removeAllRelatedCheckpoints("s", true);
 
@@ -359,8 +374,9 @@ class CheckpointSessionServiceTest {
     void shouldDeleteRelatedWhenRemoveAllRelatedCheckpointsAndNotRoot() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         svc.removeAllRelatedCheckpoints("s", false);
 
@@ -372,8 +388,9 @@ class CheckpointSessionServiceTest {
     void shouldDelegateDeleteOldRecordsByInterval() {
         SessionInfoRepository sessionRepo = mock(SessionInfoRepository.class);
         CheckpointRepository checkpointRepo = mock(CheckpointRepository.class);
+        IdempotencyRecordService idempotencyRecordService = mock(IdempotencyRecordService.class);
 
-        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class));
+        CheckpointSessionService svc = service(sessionRepo, checkpointRepo, mock(CheckpointRestService.class), mock(ObjectMapper.class), idempotencyRecordService);
 
         svc.deleteOldRecordsByInterval("P30D");
 

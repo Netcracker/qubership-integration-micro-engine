@@ -22,6 +22,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.extensions.Extension;
@@ -82,10 +83,20 @@ public class CheckpointSessionController {
             @Parameter(description = "Enable TraceMe header, which will force session to be logged")
             boolean traceMe,
 
+            @HeaderParam("X-Idempotency-Key")
+            @DefaultValue("")
+            @Parameter(description = "Idempotency header, which will be used to identify duplicate request")
+            String xIdempotencyKey,
+
             @Parameter(description = "If passed, request body will be replaced with this value")
             String body
     ) {
         log.info("Request to retry session {}", sessionId);
+        if (StringUtils.isNotBlank(xIdempotencyKey)
+                && checkpointSessionService.verifyAndInsertIfNotExistIdempotencyKey(xIdempotencyKey, sessionId)) {
+            log.info("Duplicate Idempotency key found, key: {}, sessionId: {}", xIdempotencyKey, sessionId);
+            return RestResponse.accepted();
+        }
         checkpointSessionService.retryFromLastCheckpoint(chainId, sessionId, body, toAuthSupplier(authorization), traceMe);
         return RestResponse.accepted();
     }
@@ -118,10 +129,20 @@ public class CheckpointSessionController {
             @Parameter(description = "Enable TraceMe header, which will force session to be logged")
             boolean traceMe,
 
+            @HeaderParam("X-Idempotency-Key")
+            @DefaultValue("")
+            @Parameter(description = "Idempotency header, which will be used to identify duplicate request")
+            String xIdempotencyKey,
+
             @Parameter(description = "If passed, request body will be replaced with this value")
             String body
     ) {
         log.info("Request to retry session {} from checkpoint {}", sessionId, checkpointElementId);
+        if (StringUtils.isNotBlank(xIdempotencyKey)
+                && checkpointSessionService.verifyAndInsertIfNotExistIdempotencyKey(xIdempotencyKey, sessionId)) {
+            log.info("Duplicate Idempotency key found, key: {}, sessionId: {}", xIdempotencyKey, sessionId);
+            return RestResponse.accepted();
+        }
         checkpointSessionService.retryFromCheckpoint(chainId, sessionId, checkpointElementId, body, toAuthSupplier(authorization), traceMe);
         return RestResponse.accepted();
     }

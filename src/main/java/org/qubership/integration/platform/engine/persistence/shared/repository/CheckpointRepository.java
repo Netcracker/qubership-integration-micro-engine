@@ -64,8 +64,7 @@ public class CheckpointRepository implements PanacheRepositoryBase<Checkpoint, S
                            + octet_length(chpt.session_id)
                            + octet_length(chpt.checkpoint_element_id)
                            + octet_length(chpt.headers)
-                           + 4                         --oid fixed size
-                           + length(lo_get(chpt.body)) --actual body size from pg_large_objects
+                           + length(chpt.body_bytea)
                            + 8                         --timestamp fixed size
                            + octet_length(chpt.context_data)
                         ), 0

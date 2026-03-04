@@ -41,6 +41,8 @@ camel:
       CamelJacksonTypeConverterToPojo: true
       inflightRepositoryBrowseEnabled: true
   component:
+    bean:
+      bean-info-cache-size: 30 # until took the fix from https://issues.apache.org/jira/browse/CAMEL-22775
     quartz:
       autowired-enabled: false
     kafka: # new parameters will not be automatically set to 'kafka-custom' element, need to change KafkaCustomComponentConfiguration
@@ -57,6 +59,7 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  standalone: true
   camel:
     routes-prefix: /routes
     stream-caching:
@@ -70,6 +73,8 @@ qip:
         predeploy-check-enabled: ${CAMEL_KAFKA_PREDEPLOY_CHECK_ENABLED:true}
       rabbitmq:
         predeploy-check-enabled: ${CAMEL_AMQP_PREDEPLOY_CHECK_ENABLED:true}
+      pubsub:
+        predeploy-check-enabled: ${CAMEL_PUBSUB_PREDEPLOY_CHECK_ENABLED:true}
   deployments:
     retry-delay: 30s
     thread-pool:
@@ -87,6 +92,10 @@ qip:
       user-name: ${OPENSEARCH_USERNAME:}
       password: ${OPENSEARCH_PASSWORD:}
       prefix: ${OPENSEARCH_PREFIX:}
+    kafka-client:
+      enabled: ${OPENSEARCH_KAFKA_ENABLED:false}
+      bootstrap-servers: ${OPENSEARCH_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+      topic: ${OPENSEARCH_KAFKA_TOPIC:elements}
     write:
       batch:
         count: 100
@@ -106,7 +115,9 @@ qip:
     enabled: ${MONITORING_ENABLED:false}
     http-payload-metrics:
       enabled: true
-      buckets: 1, 10, 100, 1000
+      buckets: 128, 1024, 8192, 32768, 262144
+    session-duration:
+      buckets: 100ms, 1s, 10s, 30s, 60s
     prometheus:
       # Delay in seconds between init and update new metric (Counter)
       init:
@@ -165,7 +176,7 @@ quarkus:
     level: INFO
     console:
       level: INFO
-      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-7p] [request_id=%-15X{requestId}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId}] [spanId=%-16X{X-B3-SpanId}] [method=%-30.30M]  - %m%n"
+      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-5p] [request_id=%-15X{requestId:--}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId:--}] [spanId=%-16X{X-B3-SpanId:--}] [method=%-30.30M] [log_type=%-3X{logType:--}] [session_id=%-36X{internalProperty_sessionId:--}] [chain_id=%-36X{chainId:--}] [chain=%-30X{chainName:--}] [chain_element_id=%-36X{elementId:--}] [chain_element=%-15X{elementName:--}] - %m%n"
       filter: camel-job-filter
     category:
       "org.qubership.integration.platform.engine.service.debugger.logging.ChainLogger":
@@ -321,3 +332,12 @@ quarkus:
     export:
       prometheus:
         path: /metrics
+
+mp:
+  messaging:
+    outgoing:
+      sessions:
+        connector: smallrye-kafka
+        topic: ${qip.opensearch.kafka-client.topic:}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
