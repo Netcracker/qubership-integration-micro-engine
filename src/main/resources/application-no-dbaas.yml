@@ -53,3 +53,14 @@ quarkus:
     table-prefix: engine.QRTZ_
     misfire-threshold: 15S
     thread-count: 10
+
+mp:
+  messaging:
+    outgoing:
+      sessions:
+        bootstrap:
+          servers: ${qip.opensearch.kafka-client.bootstrap-servers}
+        connector: smallrye-kafka
+        topic: ${qip.opensearch.kafka-client.topic}
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

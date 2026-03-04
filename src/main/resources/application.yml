@@ -123,6 +123,7 @@ qip:
       enabled: ${OPENSEARCH_KAFKA_ENABLED:false}
       bootstrap-servers: ${OPENSEARCH_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
       topic: ${OPENSEARCH_KAFKA_TOPIC:elements}
+      maas-producer-name: ${OPENSEARCH_MAAS_KAFKA_PRODUCER_NAME:opensearch-kafka-producer}
     write:
       batch:
         count: 100
@@ -278,12 +279,3 @@ quarkus:
     export:
       prometheus:
         path: /metrics
-
-mp:
-  messaging:
-    outgoing:
-      sessions:
-        connector: smallrye-kafka
-        topic: ${qip.opensearch.kafka-client.topic:}
-        value:
-          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer

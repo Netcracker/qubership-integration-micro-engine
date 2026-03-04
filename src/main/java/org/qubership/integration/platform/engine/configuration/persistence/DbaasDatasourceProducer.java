@@ -29,9 +29,6 @@ public class DbaasDatasourceProducer {
     public AgroalDataSource configsDataSource(@NotNull DbaaSPostgresDbCreationService dataSourceCreationService) {
         return new DbaaSDataSource(
                 new TenantClassifierBuilder(Collections.emptyMap())
-                        .withProperty("namespace", namespace)
-                        .withProperty("microserviceName", microserviceName)
-                        .withCustomKey("logicalDbName", "configs"),
                         .withProperty(NAMESPACE, namespace)
                         .withProperty(MICROSERVICE_NAME, microserviceName)
                         .withCustomKey(LOGICAL_DB_NAME, "configs"),
