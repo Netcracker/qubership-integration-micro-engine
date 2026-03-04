@@ -1,10 +1,24 @@
+-- Copyright 2024-2025 NetCracker Technology Corporation
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--     http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+
 DO
 $$
 
     DECLARE
         executed BOOLEAN;
     BEGIN
-        SELECT true INTO executed FROM flyway_schema_history where version = '10.001' or version = '100.000';
+        SELECT true INTO executed FROM flyway_schema_history where version = '10.001';
 
         IF coalesce(executed, false) is false THEN
 
@@ -75,17 +89,6 @@ $$
                         on delete cascade
             );
 
-            insert into flyway_schema_history(installed_rank, version, description, type, script, checksum,
-                                              installed_by, execution_time, success)
-            values ((select coalesce(max(installed_rank), 0) + 2 from flyway_schema_history),
-                    '100.000',
-                    'init-static',
-                    'SQL',
-                    'V100_000__init-static.sql',
-                    -1873308953,
-                    CURRENT_USER,
-                    7,
-                    true);
         END IF;
 
     END
