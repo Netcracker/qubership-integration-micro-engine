@@ -123,7 +123,12 @@ qip:
       enabled: ${OPENSEARCH_KAFKA_ENABLED:false}
       bootstrap-servers: ${OPENSEARCH_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
       topic: ${OPENSEARCH_KAFKA_TOPIC:elements}
-      maas-producer-name: ${OPENSEARCH_MAAS_KAFKA_PRODUCER_NAME:opensearch-kafka-producer}
+      maas:
+        enabled: ${OPENSEARCH_KAFKA_MAAS_ENABLED:false}
+        classifier:
+          name: ${OPENSEARCH_KAFKA_MAAS_CLASSIFIER_NAME:opersearch.sessions.queue}
+          namespace: ${cloud.microservice.namespace}
+          is-tenant: ${OPENSEARCH_KAFKA_MAAS_CLASSIFIER_IS_TENANT:false}
     write:
       batch:
         count: 100
