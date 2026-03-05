@@ -76,7 +76,7 @@ public class IdempotencyRecordRepository implements PanacheRepositoryBase<Idempo
                 where
                     r.expires_at < now()
         """;
-        Query query = em.createNativeQuery(sql, IdempotencyRecord.class);
+        Query query = getEntityManager().createNativeQuery(sql, IdempotencyRecord.class);
         query.setParameter("key", key);
         query.setParameter("data", data);
         query.setParameter("ttl", ttl);
