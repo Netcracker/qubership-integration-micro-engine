@@ -1,5 +1,6 @@
 package org.qubership.integration.platform.engine.camel.processors;
 
+import io.quarkus.test.Mock;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.language.simple.SimpleLanguage;

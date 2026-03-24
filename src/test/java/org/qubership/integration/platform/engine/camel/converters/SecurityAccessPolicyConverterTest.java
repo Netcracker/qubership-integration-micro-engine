@@ -2,6 +2,7 @@ package org.qubership.integration.platform.engine.camel.converters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.test.Mock;
 import org.apache.camel.TypeConversionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
