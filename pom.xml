@@ -51,6 +51,11 @@
         <quarkus.platform.version>3.27.1</quarkus.platform.version>
         <camel.version>4.14.4</camel.version>
 
+        <cloud-core.version>8.4.2</cloud-core.version>
+        <maas-client.version>11.2.6</maas-client.version>
+        <maas-client-quarkus.version>9.0.3</maas-client-quarkus.version>
+        <blue-green.version>2.0.3</blue-green.version>
+
         <lombok.version>1.18.42</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -273,7 +278,7 @@
             <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>cloud-core-quarkus-bom-publish</artifactId>
-                <version>8.2.1</version>
+                <version>${cloud-core.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -281,21 +286,21 @@
             <dependency>
                 <groupId>com.netcracker.cloud.maas.client</groupId>
                 <artifactId>maas-client-bom</artifactId>
-                <version>11.2.6</version>
+                <version>${maas-client.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>maas-client-quarkus-bom</artifactId>
-                <version>9.0.3</version>
+                <version>${maas-client-quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.netcracker.cloud.quarkus</groupId>
                 <artifactId>blue-green-state-monitor-quarkus</artifactId>
-                <version>2.0.3</version>
+                <version>${blue-green.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
