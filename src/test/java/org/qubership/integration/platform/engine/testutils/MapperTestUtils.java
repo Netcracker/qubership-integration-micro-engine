@@ -107,10 +107,6 @@ public final class MapperTestUtils {
         return expression;
     }
 
-    //    public static Field field(Object value) {
-    //        return wrapWithField(value);
-    //    }
-
     public static JsonField field(String path) {
         JsonField field = new JsonField();
         field.setDocId("doc1");

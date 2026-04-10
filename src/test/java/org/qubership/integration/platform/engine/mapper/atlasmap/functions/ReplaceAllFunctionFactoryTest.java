@@ -7,12 +7,16 @@ import io.atlasmap.v2.Field;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.qubership.integration.platform.engine.testutils.DisplayNameUtils;
 import org.qubership.integration.platform.engine.testutils.MapperTestUtils;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,14 +77,15 @@ class ReplaceAllFunctionFactoryTest {
         assertEquals("199199", result.getValue());
     }
 
-    @Test
-    void shouldReturnNullWhenValueIsNull() throws Exception {
+    @ParameterizedTest
+    @MethodSource("nullArguments")
+    void shouldReturnNullWhenAnyArgumentIsNull(Object value, Object regex, Object replacement) throws Exception {
         ReplaceAllFunctionFactory factory = new ReplaceAllFunctionFactory();
 
         Expression expression = factory.create(List.of(
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, null),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "a"),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "b")
+                MapperTestUtils.expressionReturningWithWrapping(expressionContext, value),
+                MapperTestUtils.expressionReturningWithWrapping(expressionContext, regex),
+                MapperTestUtils.expressionReturningWithWrapping(expressionContext, replacement)
         ));
 
         Field result = expression.evaluate(expressionContext);
@@ -88,33 +93,11 @@ class ReplaceAllFunctionFactoryTest {
         assertNull(result.getValue());
     }
 
-    @Test
-    void shouldReturnNullWhenRegexIsNull() throws Exception {
-        ReplaceAllFunctionFactory factory = new ReplaceAllFunctionFactory();
-
-        Expression expression = factory.create(List.of(
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "abc"),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, null),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "b")
-        ));
-
-        Field result = expression.evaluate(expressionContext);
-
-        assertNull(result.getValue());
-    }
-
-    @Test
-    void shouldReturnNullWhenReplacementIsNull() throws Exception {
-        ReplaceAllFunctionFactory factory = new ReplaceAllFunctionFactory();
-
-        Expression expression = factory.create(List.of(
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "abc"),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, "a"),
-                MapperTestUtils.expressionReturningWithWrapping(expressionContext, null)
-        ));
-
-        Field result = expression.evaluate(expressionContext);
-
-        assertNull(result.getValue());
+    private static Stream<Arguments> nullArguments() {
+        return Stream.of(
+                Arguments.of(null, "a", "b"),
+                Arguments.of("abc", null, "b"),
+                Arguments.of("abc", "a", null)
+        );
     }
 }

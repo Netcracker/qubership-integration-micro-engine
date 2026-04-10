@@ -16,13 +16,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.qubership.integration.platform.engine.testutils.DisplayNameUtils;
 import org.qubership.integration.platform.engine.testutils.MapperTestUtils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -50,52 +61,19 @@ class QipAtlasJsonFieldReaderTest {
         reader = new QipAtlasJsonFieldReader(conversionService);
     }
 
-    @Test
-    void shouldAddAuditAndReturnFieldWhenRootNodeIsNull() throws Exception {
+    @ParameterizedTest
+    @MethodSource("nullDocumentStates")
+    void shouldAddAuditAndReturnFieldWhenDocumentIsNotAvailable(String initialDocument, String nextDocument)
+            throws Exception {
         JsonField sourceField = MapperTestUtils.jsonField("/name");
         stubSessionField(sourceField);
 
-        try (MockedStatic<AtlasUtil> atlasUtil = mockStatic(AtlasUtil.class)) {
-            Field result = reader.read(session);
-
-            assertSame(sourceField, result);
-            atlasUtil.verify(() -> AtlasUtil.addAudit(
-                    eq(session),
-                    eq(sourceField),
-                    contains("document is null"),
-                    eq(AuditStatus.ERROR),
-                    isNull()
-            ));
+        if (initialDocument != null) {
+            reader.setDocument(initialDocument);
         }
-    }
-
-    @Test
-    void shouldClearDocumentWhenSetDocumentWithNull() throws Exception {
-        JsonField sourceField = MapperTestUtils.jsonField("/name");
-        stubSessionField(sourceField);
-        reader.setDocument("{\"name\":\"Alex\"}");
-        reader.setDocument(null);
-
-        try (MockedStatic<AtlasUtil> atlasUtil = mockStatic(AtlasUtil.class)) {
-            Field result = reader.read(session);
-
-            assertSame(sourceField, result);
-            atlasUtil.verify(() -> AtlasUtil.addAudit(
-                    eq(session),
-                    eq(sourceField),
-                    contains("document is null"),
-                    eq(AuditStatus.ERROR),
-                    isNull()
-            ));
+        if (nextDocument != null || initialDocument != null) {
+            reader.setDocument(nextDocument);
         }
-    }
-
-    @Test
-    void shouldClearDocumentWhenSetDocumentWithEmptyString() throws Exception {
-        JsonField sourceField = MapperTestUtils.jsonField("/name");
-        stubSessionField(sourceField);
-        reader.setDocument("{\"name\":\"Alex\"}");
-        reader.setDocument("");
 
         try (MockedStatic<AtlasUtil> atlasUtil = mockStatic(AtlasUtil.class)) {
             Field result = reader.read(session);
@@ -115,12 +93,12 @@ class QipAtlasJsonFieldReaderTest {
     void shouldReadSingleScalarField() throws Exception {
         JsonField sourceField = MapperTestUtils.jsonField("/name");
         stubSessionField(sourceField);
-        reader.setDocument("{\"name\":\"Alex\"}");
+        reader.setDocument("{\"name\":\"Harry\"}");
 
         Field result = reader.read(session);
 
         assertSame(sourceField, result);
-        assertEquals("Alex", sourceField.getValue());
+        assertEquals("Harry", sourceField.getValue());
         assertNull(sourceField.getStatus());
     }
 
@@ -140,7 +118,7 @@ class QipAtlasJsonFieldReaderTest {
     void shouldSetNotFoundWhenScalarFieldIsMissing() throws Exception {
         JsonField sourceField = MapperTestUtils.jsonField("/missing");
         stubSessionField(sourceField);
-        reader.setDocument("{\"name\":\"Alex\"}");
+        reader.setDocument("{\"name\":\"Harry\"}");
 
         Field result = reader.read(session);
 
@@ -694,5 +672,13 @@ class QipAtlasJsonFieldReaderTest {
     private void stubSessionField(Field field) {
         when(session.head()).thenReturn(head);
         when(head.getSourceField()).thenReturn(field);
+    }
+
+    private static Stream<Arguments> nullDocumentStates() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of("{\"name\":\"Harry\"}", null),
+                Arguments.of("{\"name\":\"Harry\"}", "")
+        );
     }
 }

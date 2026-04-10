@@ -225,17 +225,21 @@ class QipGeneratedValueAtlasModuleTest {
             return constructor.newInstance(values);
         }
 
-        for (Constructor<?> constructor : ValueGeneratorInfo.class.getDeclaredConstructors()) {
-            Object[] values = new Object[constructor.getParameterCount()];
-            Class<?>[] types = constructor.getParameterTypes();
-            for (int i = 0; i < types.length; i++) {
-                values[i] = defaultValue(types[i], name, parameters);
-            }
-            constructor.setAccessible(true);
-            return (ValueGeneratorInfo) constructor.newInstance(values);
+        Constructor<?>[] constructors = ValueGeneratorInfo.class.getDeclaredConstructors();
+        if (constructors.length == 0) {
+            throw new IllegalStateException("Unable to instantiate ValueGeneratorInfo");
         }
 
-        throw new IllegalStateException("Unable to instantiate ValueGeneratorInfo");
+        Constructor<?> constructor = constructors[0];
+        Object[] values = new Object[constructor.getParameterCount()];
+        Class<?>[] types = constructor.getParameterTypes();
+
+        for (int i = 0; i < types.length; i++) {
+            values[i] = defaultValue(types[i], name, parameters);
+        }
+
+        constructor.setAccessible(true);
+        return (ValueGeneratorInfo) constructor.newInstance(values);
     }
 
     private static Object recordComponentValue(String componentName, Class<?> type, String name, List<String> parameters) {

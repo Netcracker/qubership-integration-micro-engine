@@ -160,7 +160,7 @@ class CustomAtlasContextTest {
     }
 
     @Test
-    void shouldProcessExpressionWhenInputFieldsAndExpressionPresent() throws Exception {
+    void shouldProcessExpressionWhenInputFieldsAndExpressionPresent() {
         Mapping mapping = mock(Mapping.class);
         JsonField sourceField1 = MapperTestUtils.field("/source/a");
         JsonField sourceField2 = MapperTestUtils.field("/source/b");
@@ -403,7 +403,7 @@ class CustomAtlasContextTest {
     }
 
     @Test
-    void shouldAddAuditWhenModuleNotFoundForSourceField() throws Exception {
+    void shouldAddAuditWhenModuleNotFoundForSourceField() {
         Mapping mapping = mock(Mapping.class);
         DefaultAtlasSession session = sessionWithMapping(mapping);
         JsonField sourceField = MapperTestUtils.field("/source/a");
@@ -428,7 +428,7 @@ class CustomAtlasContextTest {
     }
 
     @Test
-    void shouldAddAuditWhenSourceFieldTypeIsUnsupported() throws Exception {
+    void shouldAddAuditWhenSourceFieldTypeIsUnsupported() {
         Mapping mapping = mock(Mapping.class);
         DefaultAtlasSession session = sessionWithMapping(mapping);
         JsonField sourceField = MapperTestUtils.field("/source/a");
@@ -485,7 +485,7 @@ class CustomAtlasContextTest {
     }
 
     @Test
-    void shouldApplyGroupActionsEvenWhenNestedFieldGroupChildModuleIsMissing() throws Exception {
+    void shouldApplyGroupActionsEvenWhenNestedFieldGroupChildModuleIsMissing() {
         Mapping mapping = mock(Mapping.class);
         DefaultAtlasSession session = sessionWithMapping(mapping);
 

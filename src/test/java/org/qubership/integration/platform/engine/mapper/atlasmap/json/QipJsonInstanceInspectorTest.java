@@ -18,7 +18,11 @@ import org.qubership.integration.platform.engine.testutils.MapperTestUtils;
 import java.math.BigInteger;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameUtils.ReplaceCamelCase.class)
@@ -69,60 +73,60 @@ class QipJsonInstanceInspectorTest {
     @Test
     void shouldInspectFlatObjectWithSupportedScalarTypes() throws Exception {
         JsonDocument result = inspector.inspect(
-                "{\"name\":\"Alex\",\"age\":30,\"active\":true,\"amount\":1.5,\"longValue\":2147483648,\"bigValue\":9223372036854775808}"
+                "{\"name\":\"Harry\",\"age\":30,\"active\":true,\"amount\":1.5,\"longValue\":2147483648,\"bigValue\":9223372036854775808}"
         );
 
         assertNotNull(result);
         assertNotNull(result.getFields());
         assertEquals(6, result.getFields().getField().size());
 
-        JsonField name = MapperTestUtils.jsonField(result.getFields().getField().get(0));
-        JsonField age = MapperTestUtils.jsonField(result.getFields().getField().get(1));
-        JsonField active = MapperTestUtils.jsonField(result.getFields().getField().get(2));
-        JsonField amount = MapperTestUtils.jsonField(result.getFields().getField().get(3));
-        JsonField longValue = MapperTestUtils.jsonField(result.getFields().getField().get(4));
-        JsonField bigValue = MapperTestUtils.jsonField(result.getFields().getField().get(5));
-
-        assertEquals("name", name.getName());
-        assertEquals("/name", name.getPath());
-        assertEquals(FieldType.STRING, name.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, name.getStatus());
-        assertEquals("Alex", name.getValue());
-
-        assertEquals("age", age.getName());
-        assertEquals("/age", age.getPath());
-        assertEquals(FieldType.INTEGER, age.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, age.getStatus());
-        assertEquals(30, age.getValue());
-
-        assertEquals("active", active.getName());
-        assertEquals("/active", active.getPath());
-        assertEquals(FieldType.BOOLEAN, active.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, active.getStatus());
-        assertEquals(Boolean.TRUE, active.getValue());
-
-        assertEquals("amount", amount.getName());
-        assertEquals("/amount", amount.getPath());
-        assertEquals(FieldType.DOUBLE, amount.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, amount.getStatus());
-        assertEquals(1.5d, amount.getValue());
-
-        assertEquals("longValue", longValue.getName());
-        assertEquals("/longValue", longValue.getPath());
-        assertEquals(FieldType.LONG, longValue.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, longValue.getStatus());
-        assertEquals(2147483648L, longValue.getValue());
-
-        assertEquals("bigValue", bigValue.getName());
-        assertEquals("/bigValue", bigValue.getPath());
-        assertEquals(FieldType.BIG_INTEGER, bigValue.getFieldType());
-        assertEquals(FieldStatus.SUPPORTED, bigValue.getStatus());
-        assertEquals(new BigInteger("9223372036854775808"), bigValue.getValue());
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(0)),
+                "name",
+                "/name",
+                FieldType.STRING,
+                "Harry"
+        );
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(1)),
+                "age",
+                "/age",
+                FieldType.INTEGER,
+                30
+        );
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(2)),
+                "active",
+                "/active",
+                FieldType.BOOLEAN,
+                Boolean.TRUE
+        );
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(3)),
+                "amount",
+                "/amount",
+                FieldType.DOUBLE,
+                1.5d
+        );
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(4)),
+                "longValue",
+                "/longValue",
+                FieldType.LONG,
+                2147483648L
+        );
+        assertSupportedJsonField(
+                MapperTestUtils.jsonField(result.getFields().getField().get(5)),
+                "bigValue",
+                "/bigValue",
+                FieldType.BIG_INTEGER,
+                new BigInteger("9223372036854775808")
+        );
     }
 
     @Test
     void shouldInspectNestedObject() throws Exception {
-        JsonDocument result = inspector.inspect("{\"customer\":{\"name\":\"Alex\",\"active\":true}}");
+        JsonDocument result = inspector.inspect("{\"customer\":{\"name\":\"Harry\",\"active\":true}}");
 
         assertNotNull(result);
         assertEquals(1, result.getFields().getField().size());
@@ -140,7 +144,7 @@ class QipJsonInstanceInspectorTest {
         assertEquals("name", name.getName());
         assertEquals("/customer/name", name.getPath());
         assertEquals(FieldType.STRING, name.getFieldType());
-        assertEquals("Alex", name.getValue());
+        assertEquals("Harry", name.getValue());
 
         assertEquals("active", active.getName());
         assertEquals("/customer/active", active.getPath());
@@ -262,5 +266,19 @@ class QipJsonInstanceInspectorTest {
         JsonField secondName = MapperTestUtils.jsonField(second.getJsonFields().getJsonField().getFirst());
         assertEquals("name", secondName.getName());
         assertEquals("second", secondName.getValue());
+    }
+
+    private static void assertSupportedJsonField(
+            JsonField field,
+            String expectedName,
+            String expectedPath,
+            FieldType expectedFieldType,
+            Object expectedValue
+    ) {
+        assertEquals(expectedName, field.getName());
+        assertEquals(expectedPath, field.getPath());
+        assertEquals(expectedFieldType, field.getFieldType());
+        assertEquals(FieldStatus.SUPPORTED, field.getStatus());
+        assertEquals(expectedValue, field.getValue());
     }
 }
