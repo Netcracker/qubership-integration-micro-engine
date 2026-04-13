@@ -18,9 +18,13 @@ It creates if not exists index in OpenSearch and sets up index rotation policy v
 
 ## Installation
 
-Variables Management Service is a Spring Boot Application and requires Java 21 and Maven to build.
+Engine Service is a Quarkus application and requires Java 21 and Maven to build.
 [Dockerfile](Dockerfile) is provided to build a containerized application.
 It can be run locally using a [Docker compose configuration](https://github.com/Netcracker/qubership-integration-platform).
+
+Since for a Quarkus application a part of configuration is applied in build-time, the Engine application should be built with different sets of profiles for production and local development:
+* prod,dbaas - for production
+* development,no-dbaas,no-m2m - for local development
 
 ## Configuration
 
