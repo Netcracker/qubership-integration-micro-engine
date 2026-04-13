@@ -43,6 +43,8 @@ consul:
     common-variables-v2: /variables/common
   dynamic-state-keys:
     enabled: ${DYNAMIC_ENGINE_CONSUL_STATE_ENABLED:false}
+  connectTimeout: 25000
+  timeout: 25000
 
 camel:
   trace:

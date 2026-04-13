@@ -16,6 +16,12 @@ public class ConsulClientSupplierProducer {
     @ConfigProperty(name = "consul.url")
     URI uri;
 
+    @ConfigProperty(name = "consul.connectTimeout")
+    Integer connectTimeout;
+
+    @ConfigProperty(name = "consul.timeout")
+    Integer timeout;
+
     @Produces
     public Supplier<ConsulClient> consulClient(
             Vertx vertx,
@@ -23,7 +29,9 @@ public class ConsulClientSupplierProducer {
     ) {
         return () -> {
             ConsulClientOptions options = new ConsulClientOptions(uri)
-                    .setAclToken(tokenStorage.get());
+                    .setAclToken(tokenStorage.get())
+                    .setConnectTimeout(connectTimeout)
+                    .setTimeout(timeout);
             return ConsulClient.create(vertx, options);
         };
     }
