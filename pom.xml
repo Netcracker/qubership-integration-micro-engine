@@ -807,6 +807,8 @@
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
+                        <core.contextpropagation.providers.reflection-discovery.disabled>true</core.contextpropagation.providers.reflection-discovery.disabled>
+                        <core.contextpropagation.providers.lookup>false</core.contextpropagation.providers.lookup>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
