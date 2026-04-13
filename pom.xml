@@ -5,12 +5,12 @@
 
     <groupId>org.qubership.integration.platform</groupId>
     <artifactId>qip-micro-engine</artifactId>
-    <version>${revision}</version>
+    <version>0.2.5-SNAPSHOT</version>
     <name>QIP Micro Engine</name>
     <description>Engine service orchestrates and runs integration chains, manages their endpoints, records executions,
         collects metrics, and publishes deployment state, using Apache Camel, Consul, and OpenSearch
     </description>
-    <url>https://github.com/Netcracker/qubership-integration-engine</url>
+    <url>https://github.com/Netcracker/qubership-integration-micro-engine</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -26,16 +26,15 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https//github.com/Netcracker/qubership-integration-engine.git</connection>
-        <developerConnection>scm:git:https://github.com/Netcracker/qubership-integration-engine.git
+        <connection>scm:git:https//github.com/Netcracker/qubership-integration-micro-engine.git</connection>
+        <developerConnection>scm:git:https://github.com/Netcracker/qubership-integration-micro-engine.git
         </developerConnection>
-        <url>scm:git:https://github.com/Netcracker/qubership-integration-engine.git</url>
+        <url>scm:git:https://github.com/Netcracker/qubership-integration-micro-engine.git</url>
         <tag>HEAD</tag>
     </scm>
 
-    <properties>
-        <revision>0.2.5</revision>
 
+    <properties>
         <qip-checkstyle-revision>0.0.3</qip-checkstyle-revision>
 
         <generated-sources>target/generated-sources/java</generated-sources>
@@ -798,7 +797,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -834,17 +832,6 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
                     </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.7.0</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
-                    <waitUntil>published</waitUntil>
                 </configuration>
             </plugin>
             <plugin>
@@ -968,18 +955,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>native</id>
-            <activation>
-                <property>
-                    <name>native</name>
-                </property>
-            </activation>
-            <properties>
-                <skipITs>false</skipITs>
-                <quarkus.native.enabled>true</quarkus.native.enabled>
-            </properties>
-        </profile>
         <!-- Maven Central -->
         <!-- mvn deploy -P central -->
         <profile>
@@ -1024,11 +999,10 @@
                     <id>github</id>
                     <name>GitHub Packages</name>
                     <url>
-                        https://maven.pkg.github.com/Netcracker/qubership-integration-engine
+                        https://maven.pkg.github.com/Netcracker/qubership-integration-sessions-management
                     </url>
                 </repository>
             </distributionManagement>
         </profile>
     </profiles>
-
 </project>
