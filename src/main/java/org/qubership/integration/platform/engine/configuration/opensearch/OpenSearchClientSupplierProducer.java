@@ -16,58 +16,36 @@
 
 package org.qubership.integration.platform.engine.configuration.opensearch;
 
-import io.quarkus.arc.DefaultBean;
-import io.quarkus.runtime.Startup;
+import com.netcracker.cloud.dbaas.client.opensearch.DbaasOpensearchClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.Credentials;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.core5.http.HttpHost;
+import jakarta.inject.Named;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
-import org.qubership.integration.platform.engine.opensearch.DefaultOpenSearchClientSupplier;
 import org.qubership.integration.platform.engine.opensearch.OpenSearchClientSupplier;
 
-@Slf4j
+import static com.netcracker.cloud.quarkus.dbaas.opensearch.client.DbaasOpensearchConfiguration.TENANT_NATIVE_OPENSEARCH_CLIENT;
+
 @ApplicationScoped
 public class OpenSearchClientSupplierProducer {
-    @Inject
-    OpenSearchProperties properties;
-
     @Produces
-    @DefaultBean
     @ApplicationScoped
-    @Startup
-    public OpenSearchClientSupplier openSearchClientSupplier(
+    public OpenSearchClientSupplier dbaasOpenSearchClientSupplier(
+            @Named(TENANT_NATIVE_OPENSEARCH_CLIENT)
+            DbaasOpensearchClient tenantClient,
             OpenSearchInitializer openSearchInitializer
     ) {
-        OpenSearchClientSupplier clientSupplier = new DefaultOpenSearchClientSupplier(
-                createOpenSearchClient(),
-                properties.client().prefix().orElse("")
-        );
+        OpenSearchClientSupplier clientSupplier = new OpenSearchClientSupplier() {
+            @Override
+            public OpenSearchClient getClient() {
+                return tenantClient.getClient();
+            }
+
+            @Override
+            public String normalize(String name) {
+                return tenantClient.normalize(name);
+            }
+        };
         openSearchInitializer.initialize(clientSupplier);
         return clientSupplier;
-    }
-
-    private OpenSearchClient createOpenSearchClient() {
-        AuthScope authScope = new AuthScope(null, null, -1, null, null);
-        Credentials credentials = new UsernamePasswordCredentials(
-                properties.client().userName().orElse(""),
-                properties.client().password().orElse("").toCharArray());
-        HttpHost httpHost = new HttpHost(
-                properties.client().protocol(),
-                properties.client().host(),
-                properties.client().port());
-        BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(authScope, credentials);
-        ApacheHttpClient5TransportBuilder builder = ApacheHttpClient5TransportBuilder
-            .builder(httpHost)
-            .setHttpClientConfigCallback(httpClientBuilder ->
-                httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-        return new OpenSearchClient(builder.build());
     }
 }
