@@ -43,7 +43,8 @@ public class DeploymentTestProfile implements QuarkusTestProfile {
             "org.qubership.integration.platform.engine.service.debugger.metrics.SessionsMetricsServiceProducer",
             "org.qubership.integration.platform.engine.configuration.SessionsMetricsServiceProducer"
 
-    );
+            ,"org.qubership.integration.platform.engine.configuration.TruststoreConfiguration"
+     );
 
     @Override
     public Map<String, String> getConfigOverrides() {
