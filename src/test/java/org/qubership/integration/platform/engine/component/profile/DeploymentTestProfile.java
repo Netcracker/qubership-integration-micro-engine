@@ -40,9 +40,8 @@ public class DeploymentTestProfile implements QuarkusTestProfile {
             "org.qubership.integration.platform.engine.service.BlueGreenSchedulerControllerService",
             "org.qubership.integration.platform.engine.service.debugger.metrics.SessionsMetricsService",
             "org.qubership.integration.platform.engine.service.debugger.metrics.SessionsMetricsServiceProducer",
-            "org.qubership.integration.platform.engine.configuration.SessionsMetricsServiceProducer"
-
-            ,"org.qubership.integration.platform.engine.configuration.TruststoreConfiguration"
+            "org.qubership.integration.platform.engine.configuration.SessionsMetricsServiceProducer",
+            "org.qubership.integration.platform.engine.configuration.TruststoreConfiguration"
      );
 
     @Override
