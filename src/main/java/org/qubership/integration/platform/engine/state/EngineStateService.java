@@ -15,6 +15,7 @@ import org.qubership.integration.platform.engine.model.engine.EngineInfo;
 import org.qubership.integration.platform.engine.model.engine.EngineState;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 
@@ -36,7 +37,7 @@ public class EngineStateService {
     boolean dynamicStateKeys;
 
     @Inject
-    ConsulClient consulClient;
+    Supplier<ConsulClient> consulClientSupplier;
 
     @Inject
     ConsulSessionService consulSessionService;
@@ -75,7 +76,7 @@ public class EngineStateService {
                 .setAcquireSession(sessionId);
         try {
             String value = objectMapper.writeValueAsString(state);
-            consulClient.putValueWithOptions(key, value, options)
+            consulClientSupplier.get().putValueWithOptions(key, value, options)
                     .onFailure()
                     .transform(failure -> {
                         log.error("Failed to create or update KV in consul: {}", failure.getMessage());

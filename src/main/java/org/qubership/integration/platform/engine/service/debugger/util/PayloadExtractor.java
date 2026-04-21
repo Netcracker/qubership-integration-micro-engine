@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.common.annotation.Identifier;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -40,12 +39,9 @@ import org.qubership.integration.platform.engine.model.logging.Payload;
 import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
 import org.qubership.integration.platform.engine.service.debugger.masking.MaskingService;
 import org.qubership.integration.platform.engine.util.ExchangeUtils;
-import org.qubership.integration.platform.engine.util.InjectUtil;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,19 +51,19 @@ public class PayloadExtractor {
     private final MaskingService maskingService;
     private final ObjectMapper objectMapper;
     private final ChainRuntimePropertiesService chainRuntimePropertiesService;
-    private final Optional<CamelExchangeContextPropagation> exchangeContextPropagation;
+    private final CamelExchangeContextPropagation exchangeContextPropagation;
 
     @Inject
     public PayloadExtractor(
             MaskingService maskingService,
             @Identifier("jsonMapper") ObjectMapper objectMapper,
             ChainRuntimePropertiesService chainRuntimePropertiesService,
-            Instance<CamelExchangeContextPropagation> exchangeContextPropagation
+            CamelExchangeContextPropagation exchangeContextPropagation
     ) {
         this.maskingService = maskingService;
         this.objectMapper = objectMapper;
         this.chainRuntimePropertiesService = chainRuntimePropertiesService;
-        this.exchangeContextPropagation = InjectUtil.injectOptional(exchangeContextPropagation);
+        this.exchangeContextPropagation = exchangeContextPropagation;
     }
 
     public Payload extractPayload(Exchange exchange) {
@@ -139,9 +135,7 @@ public class PayloadExtractor {
     }
 
     private Map<String, String> extractContext(Set<String> maskedFields, boolean maskingEnabled) {
-        Map<String, String> headers = exchangeContextPropagation.isPresent()
-                ? exchangeContextPropagation.get().buildContextSnapshotForSessions()
-                : new HashMap<>();
+        Map<String, String> headers = exchangeContextPropagation.buildContextSnapshotForSessions();
         if (maskingEnabled) {
             maskingService.maskFields(headers, maskedFields);
         }

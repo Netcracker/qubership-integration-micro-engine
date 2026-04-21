@@ -4,23 +4,27 @@ Engine service is a part of Qubership Integration Platform.
 
 This service:
 - Creates context for integration flows (so-called integration chains) using configuration provided by [Design-Time Catalog](https://github.com/Netcracker/qubership-integration-designtime-catalog), [Runtime Catalog](https://github.com/Netcracker/qubership-integration-runtime-catalog), and [Variables Management](https://github.com/Netcracker/qubership-integration-variables-management) services.
-- Manages registration of integration chains' endpoints on control plane.
+- Manages registration of integration chains endpoints on control plane.
 - Runs integration chains.
-- Records sessions of integration chains' execution. These records can be later accessed via [Sessions Management](https://github.com/Netcracker/qubership-integration-sessions-management) service.
+- Records sessions of integration chains execution. These records can be later accessed via [Sessions Management](https://github.com/Netcracker/qubership-integration-sessions-management) service.
 - Collects various metrics of integration chains execution.
 
-Engine service uses [Apache Camel](https://camel.apache.org/) for defining and execution of integration logic.
+Engine service uses **Apache Camel** for defining and execution of integration logic.
 
-Engine service publishes integration chains' deployment state to Consul.
+Engine service publishes integration chains deployment state to Consul.
 
-To store recorded sessions of integrated chains' execution, the service uses OpenSearch.
+To store recorded sessions of integrated chains execution, the service uses OpenSearch.
 It creates if not exists index in OpenSearch and sets up index rotation policy via [ISM](https://docs.opensearch.org/docs/latest/im-plugin/ism/index/).
 
 ## Installation
 
-Variables Management Service is a Spring Boot Application and requires Java 21 and Maven to build.
+Engine Service is a Quarkus application and requires Java 21 and Maven to build.
 [Dockerfile](Dockerfile) is provided to build a containerized application.
-It can be run locally using a [docker compose configuration](https://github.com/Netcracker/qubership-integration-platform).
+It can be run locally using a [Docker compose configuration](https://github.com/Netcracker/qubership-integration-platform).
+
+Since for a Quarkus application a part of configuration is applied in build-time, the Engine application should be built with different sets of profiles for production and local development:
+* prod,dbaas - for production
+* development,no-dbaas,no-m2m - for local development
 
 ## Configuration
 
@@ -68,6 +72,7 @@ It also requires:
 - OpenSearch
 - PostgreSQL
 - Redis (if idempotency support enabled).
+- Kafka (if kafka client enabled for sessions).
 
 ## Contribution
 

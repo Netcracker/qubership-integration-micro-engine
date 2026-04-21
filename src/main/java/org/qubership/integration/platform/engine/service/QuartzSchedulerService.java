@@ -107,4 +107,22 @@ public class QuartzSchedulerService {
             log.error("Failed to reset scheduler proxy", e);
         }
     }
+
+    public synchronized void suspendAllSchedulers() {
+        try {
+            log.info("Suspend camel quartz scheduler");
+            schedulerProxy.suspendScheduler();
+        } catch (Exception e) {
+            log.error("Failed to suspend scheduler", e);
+        }
+    }
+
+    public void resumeAllSchedulers() {
+        try {
+            log.info("Resume camel quartz scheduler");
+            schedulerProxy.resumeScheduler();
+        } catch (SchedulerException e) {
+            log.error("Failed to resume scheduler", e);
+        }
+    }
 }

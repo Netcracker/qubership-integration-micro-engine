@@ -44,6 +44,7 @@ import org.qubership.integration.platform.engine.model.constants.CamelConstants.
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Properties;
 import org.qubership.integration.platform.engine.model.constants.CamelNames;
 import org.qubership.integration.platform.engine.model.logging.*;
+import org.qubership.integration.platform.engine.model.logging.LogPayload;
 import org.qubership.integration.platform.engine.service.ExecutionStatus;
 import org.qubership.integration.platform.engine.service.VariablesService;
 import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
@@ -403,11 +404,11 @@ public class ChainLogger {
     private void logRequest(
         Exchange exchange,
         LoggedPayloadValues loggedPayloadValues,
-        String externalServiceName,
+        String externalServiceAddress,
         String externalServiceEnvName
     ) {
         String httpUriHeader = exchange.getMessage().getHeader(Headers.HTTP_URI, String.class);
-        if (StringUtils.isBlank(externalServiceName)) {
+        if (StringUtils.isBlank(externalServiceAddress)) {
             if (httpUriHeader != null) {
                 chainLogger.info("{} Send HTTP request. Headers: {}, body: {}, exchange properties: {}",
                         constructExtendedHTTPLogMessage(httpUriHeader, null, null, CamelNames.REQUEST),
@@ -423,21 +424,21 @@ public class ChainLogger {
         } else {
             if (httpUriHeader != null) {
                 chainLogger.info("{} Send HTTP request. Headers: {}, body: {}, exchange properties: {}"
-                        + ", external service name: {}, external service environment name: {}",
+                        + ", external service environment name: {}, external service address: {}",
                         constructExtendedHTTPLogMessage(httpUriHeader, null, null, CamelNames.REQUEST),
                         loggedPayloadValues.getHeaders(),
                         loggedPayloadValues.getBody(),
                         loggedPayloadValues.getProperties(),
-                        externalServiceName,
-                        externalServiceEnvName);
+                        externalServiceEnvName,
+                        externalServiceAddress);
             } else {
                 chainLogger.info("Send request. Headers: {}, body: {}, exchange properties: {},"
-                        + " external service name: {}, external service environment name: {}",
+                        + ", external service environment name: {}, external service address: {}",
                         loggedPayloadValues.getHeaders(),
                         loggedPayloadValues.getBody(),
                         loggedPayloadValues.getProperties(),
-                        externalServiceName,
-                        externalServiceEnvName);
+                        externalServiceEnvName,
+                        externalServiceAddress);
             }
         }
     }

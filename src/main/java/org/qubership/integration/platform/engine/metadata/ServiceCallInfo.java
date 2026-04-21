@@ -14,6 +14,7 @@ public class ServiceCallInfo {
     String retryDelay;
     String protocol;
     String externalServiceName;
+    String externalServiceAddress;
     String externalServiceEnvironmentName;
     String specificationId;
 }

@@ -74,12 +74,14 @@ public class MetricsService {
                     break;
                 case HTTP_TRIGGER:
                 case HTTP_SENDER:
-                    distributionSummary = metricsStore.processHttpPayloadSize(
+                    if (metricsStore.isHttpPayloadMetricsEnabled()) {
+                        distributionSummary = metricsStore.processHttpPayloadSize(
                             true, chainId, chainName, elementId, elementName, elementType);
-                    distributionSummary.record(calculatePayloadSize(exchange));
+                        distributionSummary.record(calculatePayloadSize(exchange));
+                    }
                     break;
                 case SERVICE_CALL:
-                    if (metricNeedsToBeRecorded(exchange, elementId)) {
+                    if (metricNeedsToBeRecorded(exchange, elementId) && metricsStore.isHttpPayloadMetricsEnabled()) {
                         distributionSummary = metricsStore.processHttpPayloadSize(
                                 true, chainId, chainName, elementId, elementName, elementType);
                         distributionSummary.record(calculatePayloadSize(exchange));
@@ -145,12 +147,14 @@ public class MetricsService {
                         chainId, chainName, parentId, parentName);
                     break;
                 case HTTP_SENDER:
-                    distributionSummary = metricsStore.processHttpPayloadSize(
+                    if (metricsStore.isHttpPayloadMetricsEnabled()) {
+                        distributionSummary = metricsStore.processHttpPayloadSize(
                             false, chainId, chainName, elementId, elementName, elementType);
-                    distributionSummary.record(calculatePayloadSize(exchange));
+                        distributionSummary.record(calculatePayloadSize(exchange));
+                    }
                     break;
                 case SERVICE_CALL:
-                    if (metricNeedsToBeRecorded(exchange, elementId)) {
+                    if (metricNeedsToBeRecorded(exchange, elementId) && metricsStore.isHttpPayloadMetricsEnabled()) {
                         distributionSummary = metricsStore.processHttpPayloadSize(
                                 false, chainId, chainName, elementId, elementName, elementType);
                         distributionSummary.record(calculatePayloadSize(exchange));
@@ -197,7 +201,7 @@ public class MetricsService {
     }
 
     public void processHttpTriggerPayloadSize(Exchange exchange) {
-        if (metricsStore.isMetricsEnabled()) {
+        if (metricsStore.isMetricsEnabled() && metricsStore.isHttpPayloadMetricsEnabled()) {
             org.qubership.integration.platform.engine.metadata.DeploymentInfo deploymentInfo =
                     MetadataUtil.getBean(exchange, org.qubership.integration.platform.engine.metadata.DeploymentInfo.class);
             String id = exchange.getProperty(Properties.HTTP_TRIGGER_STEP_ID).toString();

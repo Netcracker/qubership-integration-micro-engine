@@ -60,6 +60,7 @@ public final class CamelConstants {
         public static final String TRIGGER = "trigger";
         public static final String JOB_INSTANCE = "jobInstance";
         public static final String HTTP_URI = "CamelHttpUri";
+        public static final String X_IDEMPOTENCY_KEY = "X-Idempotency-Key";
 
         private Headers() {
         }
@@ -157,12 +158,14 @@ public final class CamelConstants {
         public static final String IS_CHECKPOINT_TRIGGER_STEP =  INTERNAL_PROPERTY_PREFIX + "isCheckpointTriggerStep";
         public static final String CHAIN_TIMED_OUT = INTERNAL_PROPERTY_PREFIX + "chainSessionTimedOut";
         public static final String CHAIN_TIME_OUT_AFTER = INTERNAL_PROPERTY_PREFIX + "chainSessionTimeoutAfter";
+        public static final String IS_CHAIN_CALL_TRIGGERED_SESSION = INTERNAL_PROPERTY_PREFIX + "isChainCallTriggeredSession";
 
         public static final String MASKED_FIELDS_PROPERTY = INTERNAL_PROPERTY_PREFIX + "maskedFields";
         public static final String HTTP_TRIGGER_STEP_ID =  "httpTriggerStepId";
 
         public static final String SERVICE_CALL_RETRY_COUNT = "retryCount";
         public static final String SERVICE_CALL_RETRY_DELAY = "retryDelay";
+        public static final String SKIP_EMPTY_QUERY_PARAMS = "integrationOperationSkipEmptyQueryParameters";
 
         public static final int SERVICE_CALL_DEFAULT_RETRY_DELAY = 5000;
 
@@ -227,8 +230,8 @@ public final class CamelConstants {
         public static final String EXCEPTION_EXTRA_FAILED_ELEMENT = "failedElementId";
         public static final String EXCEPTION_EXTRA_VALIDATION_RESULT = "validationResult";
 
-        public static final String EXTERNAL_SERVICE_NAME = "externalServiceName";
-        public static final String EXTERNAL_SERVICE_NAME_PROP = "external-service-name";
+        public static final String EXTERNAL_SERVICE_ADDRESS = "externalServiceAddress";
+        public static final String EXTERNAL_SERVICE_ADDRESS_PROP = "external-service-address";
         public static final String EXTERNAL_SERVICE_ENV_NAME = "externalServiceEnvName";
         public static final String EXTERNAL_SERVICE_ENV_NAME_PROP = "external-service-environment-name";
 
