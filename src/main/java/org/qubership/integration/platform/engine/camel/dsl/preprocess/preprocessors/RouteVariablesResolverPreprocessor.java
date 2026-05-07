@@ -8,6 +8,7 @@ import org.qubership.integration.platform.engine.camel.dsl.preprocess.ResourceCo
 import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
 import org.qubership.integration.platform.engine.metadata.RouteType;
 import org.qubership.integration.platform.engine.service.RouteRegistrationService;
+import org.qubership.integration.platform.engine.service.VariablesService;
 
 import java.util.Collection;
 
@@ -18,17 +19,21 @@ import static java.util.Objects.nonNull;
 @Priority(1)
 public class RouteVariablesResolverPreprocessor implements ResourceContentPreprocessor {
     private final CamelContext camelContext;
+    private final VariablesService variablesService;
 
     @Inject
-    public RouteVariablesResolverPreprocessor(CamelContext camelContext) {
+    public RouteVariablesResolverPreprocessor(CamelContext camelContext, VariablesService variablesService) {
         this.camelContext = camelContext;
+        this.variablesService = variablesService;
     }
 
     @Override
     public String apply(String content) throws Exception {
-        Collection<RouteRegistrationInfo> routesRegistrationInfo = camelContext.getRegistry()
-                .findByType(RouteRegistrationInfo.class)
-                .stream()
+        Collection<RouteRegistrationInfo> fromRegistry = camelContext.getRegistry()
+                .findByType(RouteRegistrationInfo.class);
+        variablesService.resolveVariablesInRoutes(fromRegistry);
+
+        Collection<RouteRegistrationInfo> routesRegistrationInfo = fromRegistry.stream()
                 .map(RouteRegistrationService::formatServiceRoutes)
                 .filter(this::isExternalRouteAndHasVariableName)
                 .toList();

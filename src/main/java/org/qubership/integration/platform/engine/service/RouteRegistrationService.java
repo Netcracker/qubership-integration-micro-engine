@@ -36,7 +36,7 @@ public class RouteRegistrationService {
     }
 
     public void registerRoutes(Collection<RouteRegistrationInfo> routes) {
-        routes = resolveVariablesInRoutes(routes);
+        variablesService.resolveVariablesInRoutes(routes);
 
         // external triggers routes
         List<RouteRegistrationInfo> gatewayTriggersRoutes = routes.stream()
@@ -67,16 +67,6 @@ public class RouteRegistrationService {
                 .filter(route -> route.getType() == RouteType.EXTERNAL_SENDER
                         || route.getType() == RouteType.EXTERNAL_SERVICE)
                 .forEach(route -> controlPlaneService.postEgressGatewayRoutes(formatServiceRoutes(route)));
-    }
-
-    private Collection<RouteRegistrationInfo> resolveVariablesInRoutes(Collection<RouteRegistrationInfo> routes) {
-        return routes.stream()
-                .filter(route -> nonNull(route.getVariableName())
-                        && (RouteType.EXTERNAL_SENDER == route.getType()
-                        || RouteType.EXTERNAL_SERVICE == route.getType()))
-                .filter(route -> variablesService.hasVariableReferences(route.getPath()))
-                .map(route -> route.toBuilder().path(variablesService.injectVariables(route.getPath())).build())
-                .toList();
     }
 
     public static @NotNull RouteRegistrationInfo formatServiceRoutes(RouteRegistrationInfo route) {

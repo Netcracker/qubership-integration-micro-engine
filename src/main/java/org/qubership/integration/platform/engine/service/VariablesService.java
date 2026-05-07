@@ -34,8 +34,11 @@ import org.qubership.integration.platform.engine.consul.updates.UpdateGetterHelp
 import org.qubership.integration.platform.engine.errorhandling.DeploymentRetriableException;
 import org.qubership.integration.platform.engine.errorhandling.KubeApiException;
 import org.qubership.integration.platform.engine.kubernetes.KubeOperator;
+import org.qubership.integration.platform.engine.metadata.RouteRegistrationInfo;
+import org.qubership.integration.platform.engine.metadata.RouteType;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +47,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @ApplicationScoped
@@ -243,5 +248,17 @@ public class VariablesService {
 
     public boolean hasVariableReferences(String text) {
         return VARIABLE_PATTERN.matcher(text).find();
+    }
+
+    public void resolveVariablesInRoutes(Collection<RouteRegistrationInfo> routes) {
+        if (routes == null) {
+            return;
+        }
+        routes.stream()
+            .filter(route -> nonNull(route.getVariableName())
+                && (RouteType.EXTERNAL_SENDER == route.getType()
+                || RouteType.EXTERNAL_SERVICE == route.getType()))
+            .filter(route -> hasVariableReferences(route.getPath()))
+            .forEach(route -> route.setPath(injectVariables(route.getPath())));
     }
 }
