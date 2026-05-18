@@ -1,18 +1,34 @@
+cloud:
+  microservice:
+    name: ${CAMEL_K_INTEGRATION:default}
+    namespace: ${NAMESPACE:local}
+    bg_version: ""
+
+tenant:
+  default:
+    id: default
+
+apigateway:
+  control-plane:
+    url: ${CONTROL_PLANE_URL:http://control-plane:8080}
+  routes:
+    registration:
+      enabled: ${ROUTES_REGISTRATION_ENABLED:true}
+
+m2m:
+  enabled: true
+
 application:
   prefix: qip
-  name: ${MICROSERVICE_NAME:qip-engine}
-  cloud_service_name: ${application.name}-${application.deployment_version}
-  deployment_version: ${DEPLOYMENT_VERSION:v1}
+  name: ${CAMEL_K_INTEGRATION:default}
   namespace: ${NAMESPACE:local}
-  default_integration_domain_microservice_name: qip-engine # custom param
-  default_integration_domain_name: default # custom param
+  cloud_service_name: ${CLOUD_SERVICE_NAME}
 
 security:
   role-prefix: 'ROLE_'
 
 consul:
   url: ${CONSUL_URL:http://consul:8500}
-  token: ${CONSUL_ADMIN_TOKEN}
   keys:
     prefix: config/${NAMESPACE}
     engine-config-root: /${application.prefix}-engine-configurations
@@ -24,6 +40,8 @@ consul:
     common-variables-v2: /variables/common
   dynamic-state-keys:
     enabled: ${DYNAMIC_ENGINE_CONSUL_STATE_ENABLED:false}
+  connectTimeout: 25000
+  timeout: 25000
 
 camel:
   trace:
@@ -32,7 +50,7 @@ camel:
     enabled: true
   main:
     name: Camel Context
-    autoStartup: false
+    autoStartup: true
     messageHistory: true
     streamCachingEnabled: true # enable exchange payload spooling
     streamCachingBufferSize: 16384
@@ -41,6 +59,8 @@ camel:
       CamelJacksonTypeConverterToPojo: true
       inflightRepositoryBrowseEnabled: true
   component:
+    bean:
+      bean-info-cache-size: 30 # until took the fix from https://issues.apache.org/jira/browse/CAMEL-22775
     quartz:
       autowired-enabled: false
     kafka: # new parameters will not be automatically set to 'kafka-custom' element, need to change KafkaCustomComponentConfiguration
@@ -57,7 +77,27 @@ camel:
       name: 'requestFilterHeaderAllowlist'
 
 qip:
+  control-plane:
+    egress:
+      name: egress-gateway
+      virtual-service: cip-egress-gateway
+      enable-insecure-tls: false
+    routes:
+      registration:
+        enabled: ${apigateway.routes.registration.enabled}
+      prefix: /${application.prefix}-routes
+  chains:
+    configuration:
+      location: ${QIP_CHAINS_CONFIGURATION_URL:}
+  libraries:
+    path: ${QIP_LIBRARIES_PATH:/tmp/libraries}
+  engine:
+    domain: ${CAMEL_K_INTEGRATION:default}
   camel:
+    startup:
+      error-handling:
+        ignore-variables-errors: false
+        ignore-route-loading-errors: false
     routes-prefix: /routes
     stream-caching:
       enabled: true # enable exchange payload spooling
@@ -66,15 +106,6 @@ qip:
     component:
       quartz:
         thread-pool-count: 10
-      kafka:
-        predeploy-check-enabled: ${CAMEL_KAFKA_PREDEPLOY_CHECK_ENABLED:true}
-      rabbitmq:
-        predeploy-check-enabled: ${CAMEL_AMQP_PREDEPLOY_CHECK_ENABLED:true}
-  deployments:
-    retry-delay: 30s
-    thread-pool:
-      core-size: 3
-      max-size: 3
   context-service:
     cleanup:
       cron: ${CONTEXT_RECORDS_CLEANUP_CRON:0 0 0 ? * SAT} #  Cleanup task schedule in cron expression format
@@ -87,6 +118,16 @@ qip:
       user-name: ${OPENSEARCH_USERNAME:}
       password: ${OPENSEARCH_PASSWORD:}
       prefix: ${OPENSEARCH_PREFIX:}
+    kafka-client:
+      enabled: ${OPENSEARCH_KAFKA_ENABLED:false}
+      bootstrap-servers: ${OPENSEARCH_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+      topic: ${OPENSEARCH_KAFKA_TOPIC:elements}
+      maas:
+        enabled: ${OPENSEARCH_KAFKA_MAAS_ENABLED:false}
+        classifier:
+          name: ${OPENSEARCH_KAFKA_MAAS_CLASSIFIER_NAME:opersearch.sessions.queue}
+          namespace: ${cloud.microservice.namespace}
+          is-tenant: ${OPENSEARCH_KAFKA_MAAS_CLASSIFIER_IS_TENANT:false}
     write:
       batch:
         count: 100
@@ -106,14 +147,16 @@ qip:
     enabled: ${MONITORING_ENABLED:false}
     http-payload-metrics:
       enabled: true
-      buckets: 1, 10, 100, 1000
+      buckets: 128, 1024, 8192, 32768, 262144
+    session-duration:
+      buckets: 100ms, 1s, 10s, 30s, 60s
     prometheus:
       # Delay in seconds between init and update new metric (Counter)
       init:
         delay: 30
   mapper:
     cache-enabled: ${MAPPER_CACHE_ENABLED:true}
-  # sessions writer performance parameters
+  # session writer performance parameters
   sessions:
     sampler:
       probabilistic: ${SESSION_SAMPLER_PROBABILISTIC:1}
@@ -126,7 +169,7 @@ qip:
       elements-count-threshold: 2
     checkpoints:
       cleanup:
-        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than interval will be deleted, for example: '1 hour', '7 days', '2 years 3 month'
+        interval: ${SESSIONS_CHECKPOINTS_CLEANUP_INTERVAL:1 month} # logs older than an interval will be deleted, for example, '1 hour', '7 days', '2 years 3 month'
         cron: ${SESSIONS_CHECKPOINTS_CLEANUP_CRON:0 0 0 ? * SAT} #  Cleanup task schedule in cron expression format
 
   local-truststore:
@@ -137,9 +180,6 @@ qip:
       location: :/tmp/cert/${SSL_SECRET:defaultsslcertificate}
   production-mode:
     enabled: ${PRODUCTION_MODE:false}
-  internal-services:
-    runtime-catalog:
-      url: ${RUNTIME_CATALOG_SERVICE_URL:http://runtime-catalog:8080}
   restclient:
     timeout: 300000
   idempotency:
@@ -162,10 +202,10 @@ quarkus:
   application:
     name: ${application.name}
   log:
-    level: INFO
+    level: ${ROOT_LOG_LEVEL:INFO}
     console:
-      level: INFO
-      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-7p] [request_id=%-15X{requestId}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId}] [spanId=%-16X{X-B3-SpanId}] [method=%-30.30M]  - %m%n"
+      level: ${ROOT_LOG_LEVEL:INFO}
+      format: "[%d{yyyy-MM-dd'T'HH:mm:ss.SSS}] [%-5p] [request_id=%-15X{requestId:--}] [thread=%-15.15t] [class=%-60.60c{59}] [traceId=%-16X{X-B3-TraceId:--}] [spanId=%-16X{X-B3-SpanId:--}] [method=%-30.30M] [log_type=%-3X{logType:--}] [session_id=%-36X{internalProperty_sessionId:--}] [chain_id=%-36X{chainId:--}] [chain=%-30X{chainName:--}] [chain_element_id=%-36X{elementId:--}] [chain_element=%-15X{elementName:--}] - %m%n"
       filter: camel-job-filter
     category:
       "org.qubership.integration.platform.engine.service.debugger.logging.ChainLogger":
@@ -177,105 +217,62 @@ quarkus:
     checkpoints:
       url: "http://localhost:8080${qip.camel.routes-prefix}"
       scope: jakarta.inject.Singleton
-    runtime-catalog:
-      url: ${RUNTIME_CATALOG_SERVICE_URL:http://runtime-catalog:8080}
+    control-plane:
+      url: ${apigateway.control-plane.url}
       scope: jakarta.inject.Singleton
-      connect-timeout: 300000
-      read-timeout: 300000
-    consul:
-      url: ${CONSUL_URL:http://consul:8500}
-      scope: jakarta.inject.Singleton
-      connect-timeout: 25000
-      read-timeout: 25000
-  consul-config:
-    prefix: config/${NAMESPACE}
+  consul-source-config:
     agent:
-      host-port: ${CONSUL_URL:consul:8500}
-      use-https: false
-      token: ${CONSUL_ADMIN_TOKEN}
+      url: ${CONSUL_URL:http://consul:8500}
+    m2m:
+      enabled: ${m2m.enabled}
   datasource:
-    checkpoints:
-      db-kind: postgresql
-      active: true
-      username: ${POSTGRES_USER:postgres}
-      password: ${POSTGRES_PASSWORD:postgres}
+    devservices:
+      enabled: false
+    db-kind: postgresql
+  dbaas:
+    api:
+      agent:
+        url: ${DBAAS_AGENT_URL:http://dbaas-agent:8080}
+    jdbc:
+      min-size: ${PG_MIN_IDLE:0}
+      max-size: ${PG_MAX_POOL_SIZE:30}
+    configs:
       jdbc:
-        driver: org.postgresql.Driver
-        url: jdbc:postgresql://${POSTGRES_URL:postgres:5432}/engine_checkpoints_db?reWriteBatchedInserts=true
         min-size: ${PG_MIN_IDLE:0}
         max-size: ${PG_MAX_POOL_SIZE:30}
-        idle-removal-interval: ${PG_IDLE_TIMEOUT:5M}
-        leak-detection-interval: ${PG_LEAK_DETECTION_INTERVAL:30000}
-    quartz:
-      db-kind: postgresql
-      active: true
-      username: ${POSTGRES_USER:postgres}
-      password: ${POSTGRES_PASSWORD:postgres}
-      jdbc:
-        driver: org.postgresql.Driver
-        url: jdbc:postgresql://${POSTGRES_URL:postgres:5432}/engine_qrtz_db
-        min-size: ${PG_MIN_IDLE:0}
-        max-size: ${PG_MAX_POOL_SIZE:30}
-        idle-removal-interval: ${PG_IDLE_TIMEOUT:5M}
-        leak-detection-interval: ${PG_LEAK_DETECTION_INTERVAL:30000}
-  flyway:
-    enabled: true
-    checkpoints:
+    flyway:
       schemas: engine
-      default-schema: engine
-      locations: 'classpath:db/migration/postgresql/static'
+      location: db/migration/postgresql/static
       baseline-on-migrate: true
-      create-schemas: true
-      out-of-order: true
-      ignore-migration-patterns: '*:future,*:missing'
       validate-on-migrate: true
-      active: true
-      migrate-at-start: true
-    quartz:
-      schemas: engine
-      default-schema: engine
-      locations: 'classpath:db/migration/postgresql/configs'
-      baseline-on-migrate: true
       create-schemas: true
       out-of-order: true
       ignore-migration-patterns: '*:future,*:missing'
-      active: true
-      migrate-at-start: true
+      datasources:
+        configs:
+          schemas: engine
+          location: db/migration/postgresql/configs
+          baseline-on-migrate: true
+          validate-on-migrate: true
+          create-schemas: true
+          out-of-order: true
+          ignore-migration-patterns: '*:future,*:missing'
   hibernate-orm:
-    checkpoints:
-      datasource: checkpoints
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      packages: org.qubership.integration.platform.engine.persistence.shared.entity
-      physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
-      database:
-        generation:
-          create-schemas: false
-        default-schema: engine
-      jdbc:
-        timezone: UTC
-        statement-batch-size: 30
-      unsupported-properties:
-        "hibernate.order_inserts": true
-        "hibernate.order_updates": true
-        "hibernate.jdbc.lob.non_contextual_creation": true
-        "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
-    quartz:
-      datasource: quartz
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-      packages: org.qubership.integration.platform.engine.persistence.configs.entity
-      physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
-      database:
-        generation:
-          create-schemas: false
-        default-schema: engine
-      jdbc:
-        timezone: UTC
-        statement-batch-size: 30
-      unsupported-properties:
-        "hibernate.order_inserts": true
-        "hibernate.order_updates": true
-        "hibernate.jdbc.lob.non_contextual_creation": true
-        "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    packages: org.qubership.integration.platform.engine.persistence.shared.entity
+    physical-naming-strategy: io.hypersistence.utils.hibernate.naming.CamelCaseToSnakeCaseNamingStrategy
+    database:
+      generation:
+        create-schemas: false
+      default-schema: engine
+    jdbc:
+      timezone: UTC
+      statement-batch-size: 30
+    unsupported-properties:
+      "hibernate.order_inserts": true
+      "hibernate.order_updates": true
+      "hibernate.jdbc.lob.non_contextual_creation": true
+      "hibernate.temp.use_jdbc_metadata_defaults": false # disable connection during init
   smallrye-openapi:
     enable: true
   camel:
@@ -284,21 +281,11 @@ quarkus:
       servlet-class: org.qubership.integration.platform.engine.camel.components.servlet.CustomCamelHttpTransportServlet
       url-patterns:
         - "${qip.camel.routes-prefix}/*"
-    debug:
-      enabled: true
     trace:
       enabled: ${TRACING_ENABLED:false}
   scheduler:
     use-composite-scheduler: true
     start-mode: FORCED
-  quartz:
-    instance-name: quartz-scheduler
-    clustered: true
-    store-type: JDBC_TX
-    datasource: quartz
-    table-prefix: engine.QRTZ_
-    misfire-threshold: 15S
-    thread-count: 10
   otel:
     propagators: b3multi
     service:

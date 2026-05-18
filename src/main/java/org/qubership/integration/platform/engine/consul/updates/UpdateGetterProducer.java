@@ -10,10 +10,11 @@ import org.qubership.integration.platform.engine.consul.updates.parsers.ChainRun
 import org.qubership.integration.platform.engine.consul.updates.parsers.CommonVariablesUpdateParser;
 import org.qubership.integration.platform.engine.consul.updates.parsers.DeploymentUpdateParser;
 import org.qubership.integration.platform.engine.consul.updates.parsers.LibrariesUpdateParser;
-import org.qubership.integration.platform.engine.model.deployment.properties.DeploymentRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.kafka.systemmodel.CompiledLibraryUpdate;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 @Slf4j
 @ApplicationScoped
@@ -43,12 +44,12 @@ public class UpdateGetterProducer {
     @Named("deploymentUpdateGetter")
     @ApplicationScoped
     public UpdateGetterHelper<Long> deploymentUpdateGetter(
-            ConsulClient consulClient,
+            Supplier<ConsulClient> consulClientSupplier,
             DeploymentUpdateParser valueParser
     ) {
         return new UpdateGetterHelper<>(
                 keyPrefix + keyEngineConfigRoot + keyDeploymentsUpdate,
-                consulClient,
+                consulClientSupplier,
                 valueParser
         );
     }
@@ -57,12 +58,12 @@ public class UpdateGetterProducer {
     @Named("librariesUpdateGetter")
     @ApplicationScoped
     public UpdateGetterHelper<List<CompiledLibraryUpdate>> librariesUpdateGetter(
-            ConsulClient consulClient,
+            Supplier<ConsulClient> consulClientSupplier,
             LibrariesUpdateParser valueParser
     ) {
         return new UpdateGetterHelper<>(
                 keyPrefix + keyEngineConfigRoot + keyLibrariesUpdate,
-                consulClient,
+                consulClientSupplier,
                 valueParser
         );
     }
@@ -70,13 +71,13 @@ public class UpdateGetterProducer {
     @Produces
     @Named("chainRuntimePropertiesUpdateGetter")
     @ApplicationScoped
-    public UpdateGetterHelper<Map<String, DeploymentRuntimeProperties>> chainRuntimePropertiesUpdateGetter(
-            ConsulClient consulClient,
+    public UpdateGetterHelper<Map<String, ChainRuntimeProperties>> chainRuntimePropertiesUpdateGetter(
+            Supplier<ConsulClient> consulClientSupplier,
             ChainRuntimePropertiesUpdateParser valueParser
     ) {
         return new UpdateGetterHelper<>(
                 keyPrefix + keyEngineConfigRoot + keyRuntimeConfigurations + keyChains,
-                consulClient,
+                consulClientSupplier,
                 valueParser
         );
     }
@@ -85,12 +86,12 @@ public class UpdateGetterProducer {
     @Named("commonVariablesUpdateGetter")
     @ApplicationScoped
     public UpdateGetterHelper<Map<String, String>> commonVariablesUpdateGetter(
-            ConsulClient consulClient,
+            Supplier<ConsulClient> consulClientSupplier,
             CommonVariablesUpdateParser valueParser
     ) {
         return new UpdateGetterHelper<>(
                 keyPrefix + keyEngineConfigRoot + keyCommonVariablesV2,
-                consulClient,
+                consulClientSupplier,
                 valueParser
         );
     }

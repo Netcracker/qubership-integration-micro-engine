@@ -38,7 +38,7 @@ public class TimestampGenerator implements Function<AtlasSession, String> {
     }
 
     public static TimestampGenerator fromParameterList(List<String> parameters) {
-        boolean isUnixEpoch = parameters.size() > 0 && Boolean.parseBoolean(parameters.get(0));
+        boolean isUnixEpoch = !parameters.isEmpty() && Boolean.parseBoolean(parameters.get(0));
         String format = parameters.size() > 1 ? parameters.get(1) : "";
         String locale = parameters.size() > 2 ? parameters.get(2) : "";
         String timezone = parameters.size() > 3 ? parameters.get(3) : "";
@@ -47,10 +47,10 @@ public class TimestampGenerator implements Function<AtlasSession, String> {
 
     @Override
     public String apply(AtlasSession atlasSession) {
-        String value = (String) atlasSession.getSourceProperties().get("Atlas.CreatedDateTimeTZ");
+        String value = (String) atlasSession.getSourceProperties().get("Atlas.CreatedUTCDateTimeWithMillisTZ");
         return AtlasMapUtils.convertDateFormat(
                 false,
-                "yyyy-MM-dd'T'HH:mm:ssZ",
+                "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
                 Locale.getDefault(Locale.Category.FORMAT).toString(),
                 TimeZone.getDefault().getID(),
                 isUnixEpoch, format, locale, timezone, value);

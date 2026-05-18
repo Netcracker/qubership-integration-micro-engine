@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.common.annotation.Identifier;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -32,16 +31,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.camel.context.propagation.CamelExchangeContextPropagation;
 import org.qubership.integration.platform.engine.errorhandling.LoggingMaskingException;
 import org.qubership.integration.platform.engine.errorhandling.errorcode.ErrorCode;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.SessionElementProperty;
 import org.qubership.integration.platform.engine.model.constants.CamelConstants.Headers;
+import org.qubership.integration.platform.engine.model.logging.CachingPayloadSupplierWrapper;
+import org.qubership.integration.platform.engine.model.logging.Payload;
+import org.qubership.integration.platform.engine.service.debugger.ChainRuntimePropertiesService;
 import org.qubership.integration.platform.engine.service.debugger.masking.MaskingService;
 import org.qubership.integration.platform.engine.util.ExchangeUtils;
-import org.qubership.integration.platform.engine.util.InjectUtil;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,37 +50,47 @@ import java.util.stream.Collectors;
 public class PayloadExtractor {
     private final MaskingService maskingService;
     private final ObjectMapper objectMapper;
-    private final Optional<CamelExchangeContextPropagation> exchangeContextPropagation;
+    private final ChainRuntimePropertiesService chainRuntimePropertiesService;
+    private final CamelExchangeContextPropagation exchangeContextPropagation;
 
     @Inject
     public PayloadExtractor(
             MaskingService maskingService,
             @Identifier("jsonMapper") ObjectMapper objectMapper,
-            Instance<CamelExchangeContextPropagation> exchangeContextPropagation
+            ChainRuntimePropertiesService chainRuntimePropertiesService,
+            CamelExchangeContextPropagation exchangeContextPropagation
     ) {
         this.maskingService = maskingService;
         this.objectMapper = objectMapper;
-        this.exchangeContextPropagation = InjectUtil.injectOptional(exchangeContextPropagation);
+        this.chainRuntimePropertiesService = chainRuntimePropertiesService;
+        this.exchangeContextPropagation = exchangeContextPropagation;
     }
 
-    public Map<String, String> extractHeadersForLogging(Exchange exchange, Set<String> maskedFields, boolean maskingEnabled) {
-        Map<String, String> headers = exchange.getMessage().getHeaders().entrySet().stream().collect(
-            Collectors.toMap(
-                Entry::getKey, entry -> entry.getValue() != null ? entry.getValue().toString() : ""));
+    public Payload extractPayload(Exchange exchange) {
+        ChainRuntimeProperties chainRuntimeProperties = chainRuntimePropertiesService.getRuntimeProperties(exchange);
+        Set<String> maskedFields = MaskedFieldUtils.getMaskedFields(exchange);
+        boolean isMaskingEnabled = chainRuntimeProperties.isMaskingEnabled();
+        return new CachingPayloadSupplierWrapper(
+                () -> extractHeaders(exchange, maskedFields, isMaskingEnabled),
+                () -> extractContext(maskedFields, isMaskingEnabled),
+                () -> extractExchangeProperties(exchange, maskedFields, isMaskingEnabled),
+                () -> extractBody(exchange, maskedFields, isMaskingEnabled)
+        );
+    }
+
+    private Map<String, String> extractHeaders(Exchange exchange, Set<String> maskedFields, boolean maskingEnabled) {
+        Map<String, String> headers = exchange.getMessage().getHeaders().entrySet().stream()
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        entry -> entry.getValue() != null ? entry.getValue().toString() : ""
+                ));
         if (maskingEnabled) {
             maskingService.maskFields(headers, maskedFields);
         }
         return headers;
     }
 
-    /**
-     * Extract body for logging from exchange
-     *
-     * @param exchange
-     * @param maskedFields
-     * @return body as is, masked body
-     */
-    public String extractBodyForLogging(Exchange exchange, Set<String> maskedFields, boolean maskingEnabled) {
+    private String extractBody(Exchange exchange, Set<String> maskedFields, boolean maskingEnabled) {
         String maskedBody = MessageHelper.extractBody(exchange);
         MediaType contentType = extractContentType(exchange);
 
@@ -97,7 +107,11 @@ public class PayloadExtractor {
         return maskedBody;
     }
 
-    public Map<String, SessionElementProperty> extractExchangePropertiesForLogging(Exchange exchange, Set<String> maskedFields, boolean maskingEnabled) {
+    private Map<String, SessionElementProperty> extractExchangeProperties(
+            Exchange exchange,
+            Set<String> maskedFields,
+            boolean maskingEnabled
+    ) {
         Map<String, SessionElementProperty> properties = ExchangeUtils.prepareExchangePropertiesForLogging(exchange);
         if (maskingEnabled) {
             maskingService.maskPropertiesFields(properties, maskedFields);
@@ -120,11 +134,8 @@ public class PayloadExtractor {
         return properties;
     }
 
-    public Map<String, String> extractContextForLogging(Set<String> maskedFields, boolean maskingEnabled) {
-
-        Map<String, String> headers = exchangeContextPropagation.isPresent()
-                ? exchangeContextPropagation.get().buildContextSnapshotForSessions()
-                : new HashMap<>();
+    private Map<String, String> extractContext(Set<String> maskedFields, boolean maskingEnabled) {
+        Map<String, String> headers = exchangeContextPropagation.buildContextSnapshotForSessions();
         if (maskingEnabled) {
             maskingService.maskFields(headers, maskedFields);
         }

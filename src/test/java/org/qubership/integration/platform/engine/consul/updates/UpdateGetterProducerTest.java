@@ -15,7 +15,7 @@ import org.qubership.integration.platform.engine.consul.updates.parsers.ChainRun
 import org.qubership.integration.platform.engine.consul.updates.parsers.CommonVariablesUpdateParser;
 import org.qubership.integration.platform.engine.consul.updates.parsers.DeploymentUpdateParser;
 import org.qubership.integration.platform.engine.consul.updates.parsers.LibrariesUpdateParser;
-import org.qubership.integration.platform.engine.model.deployment.properties.DeploymentRuntimeProperties;
+import org.qubership.integration.platform.engine.model.ChainRuntimeProperties;
 import org.qubership.integration.platform.engine.model.kafka.systemmodel.CompiledLibraryUpdate;
 import org.qubership.integration.platform.engine.testutils.DisplayNameUtils;
 
@@ -62,7 +62,7 @@ class UpdateGetterProducerTest {
     @Test
     void shouldCreateDeploymentUpdateGetterWithConfiguredKeyAndParser() {
         UpdateGetterHelper<Long> getter =
-                producer.deploymentUpdateGetter(consulClient, deploymentUpdateParser);
+                producer.deploymentUpdateGetter(() -> consulClient, deploymentUpdateParser);
 
         List<KeyValue> entries = List.of(mock(KeyValue.class));
         KeyValueList kvList = changedKvList(entries);
@@ -83,7 +83,7 @@ class UpdateGetterProducerTest {
     @Test
     void shouldCreateLibrariesUpdateGetterWithConfiguredKeyAndParser() {
         UpdateGetterHelper<List<CompiledLibraryUpdate>> getter =
-                producer.librariesUpdateGetter(consulClient, librariesUpdateParser);
+                producer.librariesUpdateGetter(() -> consulClient, librariesUpdateParser);
 
         List<KeyValue> entries = List.of(mock(KeyValue.class));
         KeyValueList kvList = changedKvList(entries);
@@ -107,14 +107,14 @@ class UpdateGetterProducerTest {
 
     @Test
     void shouldCreateChainRuntimePropertiesUpdateGetterWithConfiguredKeyAndParser() {
-        UpdateGetterHelper<Map<String, DeploymentRuntimeProperties>> getter =
-                producer.chainRuntimePropertiesUpdateGetter(consulClient, chainRuntimePropertiesUpdateParser);
+        UpdateGetterHelper<Map<String, ChainRuntimeProperties>> getter =
+                producer.chainRuntimePropertiesUpdateGetter(() -> consulClient, chainRuntimePropertiesUpdateParser);
 
         List<KeyValue> entries = List.of(mock(KeyValue.class));
         KeyValueList kvList = changedKvList(entries);
-        Map<String, DeploymentRuntimeProperties> properties = Map.of(
+        Map<String, ChainRuntimeProperties> properties = Map.of(
                 "chain-1",
-                DeploymentRuntimeProperties.builder()
+                ChainRuntimeProperties.builder()
                         .maskingEnabled(true)
                         .build()
         );
@@ -125,7 +125,7 @@ class UpdateGetterProducerTest {
         )).thenReturn(Uni.createFrom().item(kvList));
         when(chainRuntimePropertiesUpdateParser.apply(entries)).thenReturn(properties);
 
-        AtomicReference<Map<String, DeploymentRuntimeProperties>> result = new AtomicReference<>();
+        AtomicReference<Map<String, ChainRuntimeProperties>> result = new AtomicReference<>();
 
         getter.checkForUpdates(result::set);
 
@@ -135,7 +135,7 @@ class UpdateGetterProducerTest {
     @Test
     void shouldCreateCommonVariablesUpdateGetterWithConfiguredKeyAndParser() {
         UpdateGetterHelper<Map<String, String>> getter =
-                producer.commonVariablesUpdateGetter(consulClient, commonVariablesUpdateParser);
+                producer.commonVariablesUpdateGetter(() -> consulClient, commonVariablesUpdateParser);
 
         List<KeyValue> entries = List.of(mock(KeyValue.class));
         KeyValueList kvList = changedKvList(entries);

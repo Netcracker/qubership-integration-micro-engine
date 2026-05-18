@@ -17,6 +17,7 @@
 package org.qubership.integration.platform.engine.camel.processors.checkpoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netcracker.cloud.context.propagation.core.ContextManager;
 import groovy.lang.GroovyObject;
 import groovy.lang.GroovyRuntimeException;
 import groovy.xml.XmlUtil;
@@ -35,6 +36,7 @@ import org.qubership.integration.platform.engine.persistence.shared.entity.Check
 import org.qubership.integration.platform.engine.persistence.shared.entity.Property;
 import org.qubership.integration.platform.engine.service.CheckpointSessionService;
 import org.qubership.integration.platform.engine.service.debugger.util.MessageHelper;
+import org.qubership.integration.platform.engine.util.ExchangeUtil;
 import org.qubership.integration.platform.engine.util.ExchangeUtils;
 import org.qubership.integration.platform.engine.util.InjectUtil;
 
@@ -44,7 +46,6 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,7 +55,7 @@ public class ContextSaverProcessor implements Processor {
 
     private final CheckpointSessionService checkpointSessionService;
     private final ObjectMapper checkpointMapper;
-    private final Optional<ContextOperationsWrapper> contextOperations;
+    private final ContextOperationsWrapper contextOperations;
 
     @Inject
     public ContextSaverProcessor(
@@ -64,7 +65,7 @@ public class ContextSaverProcessor implements Processor {
     ) {
         this.checkpointSessionService = checkpointSessionService;
         this.checkpointMapper = checkpointMapper;
-        this.contextOperations = InjectUtil.injectOptional(contextOperations);
+        this.contextOperations = InjectUtil.injectOptional(contextOperations).orElse(ContextManager::getSerializableContextData);
     }
 
     @Override
@@ -90,14 +91,9 @@ public class ContextSaverProcessor implements Processor {
                         .build();
 
                 // dump propagation and tracing context
-                if (contextOperations.isPresent()) {
-                    checkpoint.setContextData(checkpointMapper.writeValueAsString(
-                            contextOperations.get().getSerializableContextData()));
-                }
+                checkpoint.setContextData(checkpointMapper.writeValueAsString(contextOperations.getSerializableContextData()));
 
-                checkpointSessionService.saveAndAssignCheckpoint(
-                        checkpoint,
-                        exchange.getProperty(CamelConstants.Properties.SESSION_ID, String.class));
+                checkpointSessionService.saveAndAssignCheckpoint(checkpoint, ExchangeUtil.getSessionId(exchange));
             } else {
                 log.info("Checkpoint {} skipped due to chain triggered via chain call", exchange.getProperty(
                         CamelConstants.Properties.CHECKPOINT_ELEMENT_ID, String.class));

@@ -11,13 +11,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Slf4j
 public class UpdateGetterHelper<T> {
     private static final String WAIT_TIMEOUT = "20s";
 
     private final String key;
-    private final ConsulClient consulClient;
+    private final Supplier<ConsulClient> consulClientSupplier;
     private final Function<List<KeyValue>, T> valueParser;
 
     private long lastIndex;
@@ -25,11 +26,11 @@ public class UpdateGetterHelper<T> {
 
     public UpdateGetterHelper(
             String key,
-            ConsulClient consulClient,
+            Supplier<ConsulClient> consulClientSupplier,
             Function<List<KeyValue>, T> valueParser
     ) {
         this.key = key;
-        this.consulClient = consulClient;
+        this.consulClientSupplier = consulClientSupplier;
         this.valueParser = valueParser;
         this.lastIndex = 0;
         this.previousIndex = 0;
@@ -39,7 +40,7 @@ public class UpdateGetterHelper<T> {
         BlockingQueryOptions options = new BlockingQueryOptions()
                 .setIndex(index)
                 .setWait(WAIT_TIMEOUT);
-        KeyValueList result = consulClient.getValuesWithOptions(key, options)
+        KeyValueList result = consulClientSupplier.get().getValuesWithOptions(key, options)
                 .onFailure()
                 .transform(failure -> {
                     log.error("Failed to get KV from consul: {}", failure.getMessage());
@@ -48,7 +49,7 @@ public class UpdateGetterHelper<T> {
                 .await()
                 .indefinitely();
         if (!result.isPresent()) {
-            throw new KVNotFoundException("Key not present in consul");
+            throw new KVNotFoundException("Key not present in consul: " + key);
         }
         return result;
     }
@@ -81,8 +82,10 @@ public class UpdateGetterHelper<T> {
     ) {
         try {
             getUpdates().ifPresent(consumer);
+        } catch (KVNotFoundException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("Failed to check for updates or process them", e);
+            log.error("Failed to check for updates or process them: {}", e.getMessage());
             rollbackLastIndex();
             throw e;
         }
