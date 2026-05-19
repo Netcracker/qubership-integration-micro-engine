@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.apache.camel.Route;
 import org.apache.camel.spi.CamelEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.qubership.integration.platform.engine.camel.listeners.EventProcessingAction;
@@ -47,7 +48,7 @@ public class McpToolRegistrar implements EventProcessingAction<CamelEvent.RouteA
                     .forEach(elementInfo -> {
                         McpTriggerInfo mcpTriggerInfo = MetadataUtil.getBeanForElement(
                                 event.getRoute(), elementInfo.getSnapshotElementId(), McpTriggerInfo.class);
-                        registerMcpTool(event.getRoute().getCamelContext(), deploymentInfo, elementInfo, mcpTriggerInfo);
+                        registerMcpTool(event.getRoute(), deploymentInfo, elementInfo, mcpTriggerInfo);
                     });
         }
     }
@@ -63,7 +64,8 @@ public class McpToolRegistrar implements EventProcessingAction<CamelEvent.RouteA
         return ChainElementType.MCP_TRIGGER.equals(elementType);
     }
 
-    public void registerMcpTool(CamelContext context, DeploymentInfo deploymentInfo, ElementInfo elementInfo, McpTriggerInfo mcpTriggerInfo) {
+    public void registerMcpTool(Route route, DeploymentInfo deploymentInfo, ElementInfo elementInfo, McpTriggerInfo mcpTriggerInfo) {
+        CamelContext context = route.getCamelContext();
         try {
             ToolManager.ToolDefinition toolDefinition = toolManager.newTool(mcpTriggerInfo.getName());
             toolDefinition
@@ -85,8 +87,11 @@ public class McpToolRegistrar implements EventProcessingAction<CamelEvent.RouteA
             toolDefinition.setHandler((arguments) -> {
                 ProducerTemplate producerTemplate = context.createProducerTemplate();
                 String endpointUri = "direct:" + elementInfo.getSnapshotElementId();
-                Exchange result = producerTemplate.request(endpointUri, exchange ->
-                        exchange.getIn().setBody(arguments.args()));
+                Exchange result = producerTemplate.request(endpointUri, exchange -> {
+                    // Manually setting the from route ID
+                    exchange.getExchangeExtension().setFromRouteId(route.getId());
+                    exchange.getIn().setBody(arguments.args());
+                });
                 return hasOutputSchema
                         ? ToolResponse.structuredSuccess(result.getMessage().getBody())
                         : ToolResponse.success(result.getMessage().getBody(String.class));
