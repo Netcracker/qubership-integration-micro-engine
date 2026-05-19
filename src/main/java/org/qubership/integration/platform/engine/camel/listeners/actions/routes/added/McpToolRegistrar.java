@@ -23,6 +23,7 @@ import org.qubership.integration.platform.engine.metadata.util.MetadataUtil;
 import org.qubership.integration.platform.engine.model.ChainElementType;
 
 import java.util.Map;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @OnRouteAdded
@@ -40,13 +41,21 @@ public class McpToolRegistrar implements EventProcessingAction<CamelEvent.RouteA
     @Override
     public void process(CamelEvent.RouteAddedEvent event) throws Exception {
         DeploymentInfo deploymentInfo = MetadataUtil.getBean(event.getRoute(), DeploymentInfo.class);
-        MetadataUtil.getElementsInfo(event.getRoute())
-                .filter(McpToolRegistrar::isMcpTrigger)
-                .forEach(elementInfo -> {
-                    McpTriggerInfo mcpTriggerInfo = MetadataUtil.getBeanForElement(
-                            event.getRoute(), elementInfo.getId(), McpTriggerInfo.class);
-                    registerMcpTool(event.getRoute().getCamelContext(), deploymentInfo, elementInfo, mcpTriggerInfo);
-                });
+        if (!alreadyRegistered(deploymentInfo)) {
+            MetadataUtil.getElementsInfo(event.getRoute())
+                    .filter(McpToolRegistrar::isMcpTrigger)
+                    .forEach(elementInfo -> {
+                        McpTriggerInfo mcpTriggerInfo = MetadataUtil.getBeanForElement(
+                                event.getRoute(), elementInfo.getSnapshotElementId(), McpTriggerInfo.class);
+                        registerMcpTool(event.getRoute().getCamelContext(), deploymentInfo, elementInfo, mcpTriggerInfo);
+                    });
+        }
+    }
+
+    private boolean alreadyRegistered(DeploymentInfo deploymentInfo) {
+        return StreamSupport.stream(toolManager.spliterator(), false)
+                .anyMatch(tool -> deploymentInfo.getId()
+                        .equals(tool.metadata().get(MetaKey.of(DEPLOYMENT_ID))));
     }
 
     private static boolean isMcpTrigger(ElementInfo elementInfo) {
@@ -75,7 +84,7 @@ public class McpToolRegistrar implements EventProcessingAction<CamelEvent.RouteA
             }
             toolDefinition.setHandler((arguments) -> {
                 ProducerTemplate producerTemplate = context.createProducerTemplate();
-                String endpointUri = "direct:" + elementInfo.getId();
+                String endpointUri = "direct:" + elementInfo.getSnapshotElementId();
                 Exchange result = producerTemplate.request(endpointUri, exchange ->
                         exchange.getIn().setBody(arguments.args()));
                 return hasOutputSchema
